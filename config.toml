@@ -3,13 +3,6 @@
 model = "gpt-5.5"
 model_reasoning_effort = "high"
 plan_mode_reasoning_effort = "xhigh"
-# gpt-5.5
-model_context_window = 400000
-model_auto_compact_token_limit = 250000
-# gpt-5.4
-# model_context_window = 700000
-# ut
-# model_auto_compact_token_limit = 420000
 model_verbosity = "medium"
 suppress_unstable_features_warning = true
 approval_policy = "on-request"
@@ -25,34 +18,29 @@ Command execution:
 
 Main-agent orchestration:
 - Keep the parent agent responsible for task framing, criteria, integration, final validation choice, and the user-facing summary.
-- Use direct local inspection first for small or obvious tasks.
-- Use subagents liberally when the runtime policy permits and the work can be bounded.
-- Delegate proactively when it preserves the parent context window, reduces context load, allows parallel progress, or gives a cleaner independent perspective.
-- Do not delegate when the next parent action is immediately blocked on the result, the task is too small for coordination overhead, or the work cannot be bounded clearly.
+- Treat subagents as context-isolation tools as well as parallel workers.
+- Delegate freely when delegation is available and a bounded task keeps the main context cleaner, reduces context load, provides an independent perspective, or can run without blocking the immediate next step.
+- Do not delegate when local inspection is faster, the work cannot be bounded, or the next parent action depends on the delegated result.
 - Use codebase-researcher for broad repo mapping, multi-module tracing, conventions, and impact-surface discovery.
 - Use web-researcher for targeted external docs, current API behavior, version-sensitive facts, or concise source-backed recommendations.
 - Use deep-web-researcher for broad external research, contested guidance, learning roadmaps, operational research, and comprehensive source-backed dossiers.
 - Use implementer for bounded implementation slices after scope, criteria, and owned files are clear.
 - Parallel implementers are allowed only when each has a disjoint write set and shared contracts are already decided.
-- Run reviewer before final completion for any MODERATE, COMPLEX/HIGH-IMPACT, global config, hook, security/safety, sandbox, auth, permission, policy, public API/schema, or multi-file behavior change.
-- Reviewer scope must cover the full affected implementation surface, not only the latest diff, especially when changes compose with existing config, rules, hooks, permissions, or policies.
-- Run reviewer from a clean context by default: no fork_context=true; pass goal, changed files, full affected scope, criteria, anti-criteria, validation evidence, known risks, and expected output.
-- Do not complete while reviewer blockers remain. Fix blockers and rerun reviewer, or explicitly report why a blocker is not actionable.
+- Run reviewer before final completion for MODERATE, COMPLEX/HIGH-IMPACT, global config, hook, security/safety, sandbox, auth, permission, policy, public API/schema, or multi-file behavior changes.
+- Reviewer scope must cover the full affected implementation surface; run from a clean context by default so the review is independent and not polluted by the main agent's working context.
+- Pass reviewer agents the goal, scope, criteria, anti-criteria, evidence, risks, and expected output.
+- Do not complete with reviewer blockers open; fix and rerun, or explicitly report why a blocker is not actionable.
 - If reviewer is skipped, the final answer must include `Reviewer: skipped` and the reason: TRIVIAL, SIMPLE-only, runtime policy blocked, or user explicitly declined.
-- If a higher-priority runtime policy blocks automatic subagent spawning, continue locally and mention the limitation when it affects verification or confidence.
 - Treat memory and subagent output as context, not proof; verify important claims against current files, commands, tests, or source links.
-- Prefer the simplest solution that satisfies the criteria and anti-criteria; if implementation complexity grows, stop and reduce the approach before editing further.
 
 Delegation packet discipline:
 - Treat subagents as cleanly started bounded workers unless fork_context=true is explicitly justified.
-- Before delegating, pass a compact packet with: goal, task type, scope boundaries, constraints and prohibitions, current evidence, criteria, anti-criteria, exact versions and docs evidence when relevant, owned files if editing, out-of-scope files or behavior, validation requirements, and expected output format.
+- Before delegating, pass a compact packet with: goal, task type, scope boundaries, constraints and prohibitions, current evidence, criteria, anti-criteria, exact versions and docs evidence when relevant, owned files if editing, out-of-scope behavior, validation requirements, and expected output format.
 - Do not pass raw conversation history, raw memory dumps, or broad context by default.
 - Use fork_context=true only when the subagent genuinely needs the full conversation history; state the reason when doing so.
-- Tell parallel implementers they are not alone in the codebase, must edit only owned files, and must not revert or overwrite others' changes.
 - Keep parent ownership of task framing, criteria quality, integration, and final validation.
 
 Codex versioned-docs implementation:
-- Apply the global versioned-docs preference from AGENTS.md using Codex-specific tools.
 - Before non-trivial implementation involving a library, framework, API, CLI, config format, runtime, or tool behavior, inspect exact local versions first.
 - Prefer version sources such as lockfiles, manifests, .mise.toml, .tool-versions, language/runtime files, Dockerfiles, and CI config.
 - Use Context7 with the exact version when available; otherwise use official versioned docs, local CLI help/schema/source, or web-researcher for targeted docs checks.
