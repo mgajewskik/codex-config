@@ -141,7 +141,8 @@ PROTECTED_PATH_PATTERNS=(
 init_hook_input || exit 0
 
 if command_matches_patterns "${PROTECTED_PATH_PATTERNS[@]}"; then
-    printf -v reason 'Blocked by Codex hook: Bash command mentions a protected file or path.\nCommand: %s' "$(command_for_reason)"
+    reason="Blocked by Codex hook: Bash command mentions a protected file or path.
+Command: $(command_for_reason)"
     append_blocked_log "$reason" "embedded-protected-path-patterns" "$MATCHED_PATTERN"
     deny_pre_tool_use "$reason"
 fi

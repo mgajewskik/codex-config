@@ -266,7 +266,8 @@ BLOCKED_COMMAND_PATTERNS=(
 init_hook_input || exit 0
 
 if command_matches_patterns "${BLOCKED_COMMAND_PATTERNS[@]}"; then
-    printf -v reason 'Blocked by Codex hook: dangerous Bash command matched policy pattern.\nCommand: %s' "$(command_for_reason)"
+    reason="Blocked by Codex hook: dangerous Bash command matched policy pattern.
+Command: $(command_for_reason)"
     append_blocked_log "$reason" "embedded-blocked-command-patterns" "$MATCHED_PATTERN"
     deny_pre_tool_use "$reason"
 fi

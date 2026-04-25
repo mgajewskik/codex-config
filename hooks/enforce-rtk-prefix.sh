@@ -34,7 +34,9 @@ case "$REWRITE_STATUS" in
             exit 0
         fi
 
-        printf -v reason 'RTK enforcement: rerun this Bash command through RTK to reduce token usage.\nCommand: %s\nSuggested: %s' "$(command_for_reason)" "$REWRITTEN"
+        reason="RTK enforcement: rerun this Bash command through RTK to reduce token usage.
+Command: $(command_for_reason)
+Suggested: $REWRITTEN"
         append_blocked_log "$reason" "rtk-prefix-enforcement" "$REWRITTEN"
         deny_pre_tool_use "$reason"
         ;;
@@ -42,7 +44,8 @@ case "$REWRITE_STATUS" in
         exit 0
         ;;
     2)
-        printf -v reason 'RTK enforcement: command matched an RTK deny rule.\nCommand: %s' "$(command_for_reason)"
+        reason="RTK enforcement: command matched an RTK deny rule.
+Command: $(command_for_reason)"
         append_blocked_log "$reason" "rtk-permission-deny" ""
         deny_pre_tool_use "$reason"
         ;;
