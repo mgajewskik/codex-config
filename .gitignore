@@ -1,0 +1,12 @@
+version.json
+auth.json
+history.jsonl
+installation_id
+models_cache.json
+memories/*
+logs*
+state*
+tmp*
+cache*
+sessions/*
+shell_snapshots/*

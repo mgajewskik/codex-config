@@ -1,0 +1,43 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "exec \"$HOME/.codex/hooks/log-bash-attempt.sh\"",
+            "statusMessage": "Logging Bash command attempt"
+          },
+          {
+            "type": "command",
+            "command": "exec \"$HOME/.codex/hooks/block-bash-commands.sh\"",
+            "statusMessage": "Checking Bash command policy"
+          },
+          {
+            "type": "command",
+            "command": "exec \"$HOME/.codex/hooks/block-protected-files.sh\"",
+            "statusMessage": "Checking protected path policy"
+          },
+          {
+            "type": "command",
+            "command": "exec \"$HOME/.codex/hooks/enforce-rtk-prefix.sh\"",
+            "statusMessage": "Checking RTK command prefix"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "exec \"$HOME/.codex/hooks/log-bash-executed.sh\"",
+            "statusMessage": "Logging executed Bash command"
+          }
+        ]
+      }
+    ]
+  }
+}
