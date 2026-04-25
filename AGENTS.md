@@ -161,6 +161,13 @@ For MODERATE, COMPLEX/HIGH-IMPACT, global config, hook, security/safety, sandbox
 
 The review must cover the full affected implementation surface, including interactions with existing config, rules, hooks, and policies. Do not complete with reviewer blockers open. If review is skipped, report the explicit reason.
 
+## Command Execution
+
+- For every Bash or shell command execution, start the command with `rtk`.
+- Use `rtk <command> ...` directly instead of relying on the RTK hook to deny bare commands and suggest a rewrite.
+- Split independent shell probes into separate `rtk ...` commands instead of chaining bare command segments.
+- If a shell command genuinely cannot be run through `rtk`, stop and explain why before running it.
+
 ## Git and Safety
 
 - Do not push unless explicitly requested.

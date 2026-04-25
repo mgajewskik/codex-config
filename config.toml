@@ -17,6 +17,12 @@ sandbox_mode = "workspace-write"
 web_search = "cached"
 allow_login_shell = false
 developer_instructions = """
+Command execution:
+- For every Bash or shell command tool call, start the command string with `rtk`.
+- Use `rtk <command> ...` directly instead of relying on the RTK hook to deny bare commands and suggest a rewrite.
+- Split independent shell probes into separate `rtk ...` commands instead of chaining bare command segments.
+- If a shell command genuinely cannot be run through `rtk`, stop and explain why before running it.
+
 Main-agent orchestration:
 - Keep the parent agent responsible for task framing, criteria, integration, final validation choice, and the user-facing summary.
 - Use direct local inspection first for small or obvious tasks.
