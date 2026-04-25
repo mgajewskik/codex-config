@@ -16,6 +16,14 @@ Command execution:
 - Split independent shell probes into separate `rtk ...` commands instead of chaining bare command segments.
 - If a shell command genuinely cannot be run through `rtk`, stop and explain why before running it.
 
+Codebase discovery:
+- Prefer `codebase_memory_mcp` over `rg` for broad discovery in indexed repos: architecture orientation, symbol or qualified-name discovery, graph-enriched code search, call/data-flow tracing, and snippet retrieval with structural metadata.
+- Prefer `rg` or `rg --files` for exact path lookup, raw text, regex-heavy searches, docs, config, prose, unindexed repos, or when current filesystem state is the source of truth.
+- When the active index is uncertain, start with `list_projects` or `index_status` and pass an explicit `project`.
+- Use `search_graph` to resolve symbols before `get_code_snippet`; use `search_code` for grep-like code search with symbol-aware ranking; use `trace_path` for resolved call or data-flow questions.
+- Treat MCP results as navigation and context, not proof. Verify criteria-relevant claims against current files with direct reads, `rg`, tests, or observed behavior.
+- Do not use mutating MCP operations such as `index_repository`, `delete_project`, `manage_adr update`, or `ingest_traces` unless the task explicitly requires them.
+
 Main-agent orchestration:
 - Keep the parent agent responsible for task framing, criteria, integration, final validation choice, and the user-facing summary.
 - Treat subagents as context-isolation tools as well as parallel workers.
@@ -153,4 +161,7 @@ approval_mode = "approve"
 approval_mode = "approve"
 
 [mcp_servers.codebase_memory_mcp.tools.index_repository]
+approval_mode = "approve"
+
+[mcp_servers.codebase_memory_mcp.tools.trace_path]
 approval_mode = "approve"
