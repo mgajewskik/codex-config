@@ -136,6 +136,11 @@ PROTECTED_PATH_PATTERNS=(
 
     # User systemd units can create persistent background execution
     '(^|[^[:alnum:]_.-])\.config/systemd($|/|[^[:alnum:]_./-])'
+
+    # Cron and at spool/config dirs — defense in depth on top of crontab/at
+    # command blockers in block-bash-commands.sh.
+    '(^|[^[:alnum:]_.-])/var/spool/(cron|at)($|/|[^[:alnum:]_./-])'
+    '(^|[^[:alnum:]_.-])/etc/(cron\.|crontab|cron\.d|at\.allow|at\.deny|cron\.allow|cron\.deny)'
 )
 
 init_hook_input || exit 0

@@ -30,6 +30,18 @@ BLOCKED_COMMAND_PATTERNS=(
     '(^|[^[:alnum:]_.-])(yarn|pnpm)[[:space:]]+dlx($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])deno[[:space:]]+run[^;&|]*--allow-all($|[^[:alnum:]_.-])'
 
+    # Interpreter -c/-e/--eval one-liners with dangerous payloads. These bypass
+    # every command-name hook above; bwrap still blocks local writes outside
+    # cwd, but remote-state mutation via SDKs and raw sockets succeeds. Match
+    # interpreter invocation followed by an eval flag, with payload mentioning
+    # process spawning, cloud/infra SDKs, HTTP mutations, raw sockets, or
+    # backticked destructive commands.
+    '(^|[^[:alnum:]_.-])(python|python3|perl|ruby|node|deno|php|lua)[[:space:]]+(-c|-e|-E|--eval|eval|-r)[[:space:]]+.*(subprocess|os\.system|os\.popen|os\.exec|os\.fork|child_process|spawn[Ss]ync|Deno\.(run|Command)|Open3|IO\.popen|Process\.spawn|shell_exec|passthru|popen[[:space:]]*\(|system[[:space:]]*\(|exec[[:space:]]*\()'
+    '(^|[^[:alnum:]_.-])(python|python3|perl|ruby|node|deno|php)[[:space:]]+(-c|-e|-E|--eval|eval|-r)[[:space:]]+.*(boto3|botocore|kubernetes\.client|paramiko|fabric|hvac|google\.cloud|azure\.identity|azure\.mgmt)'
+    '(^|[^[:alnum:]_.-])(python|python3|perl|ruby|node|deno|php)[[:space:]]+(-c|-e|-E|--eval|eval|-r)[[:space:]]+.*(requests|httpx|urllib3?|axios|http\.client)\.(delete|post|put|patch|Delete|Post|Put|Patch|DELETE|POST|PUT|PATCH)'
+    '(^|[^[:alnum:]_.-])(python|python3|perl|ruby|node|deno|php)[[:space:]]+(-c|-e|-E|--eval|eval|-r)[[:space:]]+.*(socket\.(socket|connect|create_connection)|TCPSocket|Net::TCP|tls\.connect)'
+    '(^|[^[:alnum:]_.-])(perl|ruby)[[:space:]]+(-e|-E)[[:space:]]+.*`[^`]*(rm[[:space:]]|kubectl|terraform|aws[[:space:]]|gcloud|helm[[:space:]]|sudo[[:space:]]|curl[[:space:]]|wget[[:space:]]|systemctl|reboot|shutdown)'
+
     # Environment and shell introspection
     '(^|[^[:alnum:]_.-])(env|printenv|export|set|declare|compgen|history|fc)($|[^[:alnum:]_.-])'
 
@@ -42,6 +54,13 @@ BLOCKED_COMMAND_PATTERNS=(
     '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])describe[[:space:]]+secret($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])exec($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])apply[^;&|]*--force($|[^[:alnum:]_.-])'
+
+    # kubectl/oc apply or create from a remote URL or stdin manifest. Plain
+    # kubectl apply -f URL is not covered by the --force pattern above and would
+    # let an attacker apply a hostile manifest into the active cluster.
+    '(^|[^[:alnum:]_.-])(kubectl|k|oc)[^;&|]*[[:space:]]+(apply|create|replace)[^;&|]*[[:space:]]+(-f|--filename)[[:space:]]+https?://'
+    '(^|[^[:alnum:]_.-])(kubectl|k|oc)[^;&|]*[[:space:]]+(apply|create|replace)[^;&|]*[[:space:]]+(-f|--filename)[[:space:]]+-($|[[:space:]])'
+
     '(^|[^[:alnum:]_.-])helm[[:space:]]+delete($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])(terraform|tf|tofu)([^;&|]*[[:space:]])(output|show|state)($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])ansible-vault($|[^[:alnum:]_.-])'
@@ -131,6 +150,10 @@ BLOCKED_COMMAND_PATTERNS=(
     # helm uninstall
     '(^|[^[:alnum:]_.-])helm[[:space:]]+uninstall($|[^[:alnum:]_.-])'
 
+    # helm install/upgrade from a remote OCI/HTTP chart — bypasses local
+    # vetting and pulls arbitrary chart code into the cluster.
+    '(^|[^[:alnum:]_.-])helm[[:space:]]+(install|upgrade)[[:space:]]+[^[:space:];&|]+[[:space:]]+(oci://|https?://)'
+
     # ansible-playbook against production inventory
     '(^|[^[:alnum:]_.-])ansible-playbook([^;&|]*[[:space:]])(-i|--inventory)(=|[[:space:]])[^;&|[:space:]]*prod(uction)?[^;&|[:space:]]*'
 
@@ -174,6 +197,13 @@ BLOCKED_COMMAND_PATTERNS=(
 
     # GitHub repository deletion
     '(^|[^[:alnum:]_.-])gh[[:space:]]+repo[[:space:]]+delete($|[^[:alnum:]_.-])'
+
+    # GitHub secret/release/repo-visibility ops — secret rotation to attacker
+    # repo, release publishing, or making a private repo public.
+    '(^|[^[:alnum:]_.-])gh[[:space:]]+secret[[:space:]]+(set|delete)($|[^[:alnum:]_.-])'
+    '(^|[^[:alnum:]_.-])gh[[:space:]]+release[[:space:]]+(create|delete|edit)($|[^[:alnum:]_.-])'
+    '(^|[^[:alnum:]_.-])gh[[:space:]]+repo[[:space:]]+create[^;&|]*--public'
+    '(^|[^[:alnum:]_.-])gh[[:space:]]+repo[[:space:]]+edit[^;&|]*--visibility[[:space:]]+public'
 
     # Kubernetes destructive broad operations
     '(^|[^[:alnum:]_.-])(kubectl|k)[^;&|]*[[:space:]]+delete[[:space:]]+all([^;&|]*[[:space:]])--all($|[^[:alnum:]_.-])'
@@ -233,6 +263,22 @@ BLOCKED_COMMAND_PATTERNS=(
     '(^|[^[:alnum:]_.-])(docker|podman|nerdctl)[[:space:]]+(rm|rmi)[^;&|]*(-f|--force)'
     '(^|[^[:alnum:]_.-])crictl[[:space:]]+(rm|rmi|rmp|stopp)($|[^[:alnum:]_.-])'
 
+    # Generic HTTP mutation methods via curl/wget — DELETE/PUT/PATCH on any
+    # endpoint are the most direct way to mutate remote state without going
+    # through a wrapped CLI. Allow GET/HEAD/POST since they are common for
+    # reads and form submissions; agents should use the dedicated CLI for
+    # mutations so we have CLI-specific deny coverage.
+    '(^|[^[:alnum:]_.-])(curl|wget)[[:space:]]+[^;&|]*(--request[=[:space:]]+(DELETE|PUT|PATCH)|-X[[:space:]]*(DELETE|PUT|PATCH))($|[^[:alnum:]_.-])'
+
+    # curl/wget reading credential files into POST/PUT bodies — defense-in-
+    # depth on top of block-protected-files.sh in case a path slips by.
+    '(^|[^[:alnum:]_.-])(curl|wget)[[:space:]]+[^;&|]*(--data-binary|--data|-d)[[:space:]]*@[^;&|[:space:]]*(\.aws|\.kube|\.ssh|\.azure|\.config/gcloud|\.terraform|\.codex/auth)'
+
+    # AWS S3 cp/sync/mv that pulls credentials or local config dirs out of the
+    # workspace. block-protected-files.sh covers cat/grep on these paths;
+    # this catches the case where the agent uploads them via the AWS CLI.
+    '(^|[^[:alnum:]_.-])aws[[:space:]]+s3[[:space:]]+(cp|sync|mv)[[:space:]]+[^;&|]*(\.aws|\.kube|\.ssh|\.azure|\.config/gcloud|\.codex/auth|/etc/shadow)'
+
     # Grafana and Prometheus destructive API/admin operations
     '(^|[^[:alnum:]_.-])curl[^;&|]*(-X[[:space:]]*DELETE|--request[=[:space:]]*DELETE)[^;&|]*(/api/dashboards|/api/datasources|/api/admin)'
     '(^|[^[:alnum:]_.-])curl[^;&|]*(/api/v1/admin/tsdb/delete_series|/api/v1/admin/tsdb/clean_tombstones)'
@@ -254,6 +300,15 @@ BLOCKED_COMMAND_PATTERNS=(
 
     # Stop/disable/mask core host services
     '(^|[^[:alnum:]_.-])systemctl[^;&|]*(stop|disable|mask)[^;&|]*(NetworkManager|ssh|sshd|docker|containerd)($|[^[:alnum:]_.-])'
+
+    # Cron / at / user-level systemd persistence. ~/.config/systemd is in the
+    # protected-files hook, but crontab(1) writes via a setuid daemon so the
+    # bwrap filesystem boundary does not cover it. systemctl --user enable
+    # creates a user-mode persistent unit that survives the Codex session.
+    '(^|[^[:alnum:]_.-])crontab($|[[:space:]])'
+    '(^|[^[:alnum:]_.-])at[[:space:]]+(-?[fmlqrcvtMqcdb]|now|noon|midnight|teatime|tomorrow|next)'
+    '(^|[^[:alnum:]_.-])batch[[:space:]]+(-?[fmlq]|<)'
+    '(^|[^[:alnum:]_.-])systemctl[[:space:]]+--user[[:space:]]+(enable|start|link|daemon-reload|reload|restart)($|[^[:alnum:]_.-])'
 
     # Shell persistence, encoded payload execution, and eval downloader patterns
     '(^|[^[:alnum:]_.-])(echo|printf|cat)[^;&|]*(>|>>)[^;&|]*(\.bashrc|\.zshrc|\.profile|authorized_keys)'
