@@ -71,6 +71,55 @@ For non-trivial work involving a library, framework, API, CLI, config format, ru
 - Preserve user changes outside the requested scope.
 - Do not read or expose secrets, credentials, tokens, raw sensitive logs, or protected environment values.
 
+## Debugging Safety
+
+- Assume every debugging target is production, customer-facing, or unknown unless the user explicitly says it is local, dev, staging, sandbox, or otherwise safe.
+- Prefer reversible observation over intervention. Use the smallest safe probe that can strengthen or falsify the current hypothesis.
+- For each non-trivial debugging step, state the current goal, strongest hypothesis, competing alternatives, evidence so far, and next probe.
+- Classify proposed commands as `read-only`, `low-risk reversible`, `state-changing`, or `irreversible/high-impact`. If risk is ambiguous, classify it higher.
+- `read-only`: may run without asking, including observational production checks, but scope output narrowly, avoid broad secret/customer-data dumps, and summarize or redact sensitive output.
+- `low-risk reversible` or `state-changing`: may ask-then-run only when the user explicitly identifies the target as local, dev, or sandbox. For staging, production, customer-facing, or unknown systems, provide a user-run command instead.
+- `irreversible/high-impact`: never run it yourself. Explain consequences, safer probes, alternatives, rollback limits, and manual execution guidance only if the user chooses to proceed.
+- Treat high-impact reversible live actions as user-run by default: service restart/reload/stop/start, deploy rollback, firewall/routing/DNS/security policy reload, package/service/config/auth changes, database writes or repairs, Kubernetes/OpenShift/cloud/storage/backup/cluster mutations, and cross-system operations.
+- If the user asks to debug and fix a local repository bug, reproduce or diagnose first, then patch only the local repo code needed for the requested fix. If they ask only for diagnosis, stop at root cause, recommended fix, and validation steps.
+
+For user-run, risky, non-trivial, compound, remote/live-system, or state-changing commands, use this template:
+
+````markdown
+Command:
+```bash
+<command>
+```
+
+What it does:
+- `<part>`: ...
+- `<flag-or-argument>`: ...
+- `<pipe/redirect/env var>`: ...
+
+Impact:
+- Classification: read-only / low-risk reversible / state-changing / irreversible/high-impact.
+- Environment assumption: production unless explicitly stated otherwise.
+- Execution: Codex may run / ask-then-run / user-run only.
+- Why: ...
+
+Risk:
+- What could go wrong:
+- External state changed: yes/no/uncertain.
+- Sensitive output risk: none/low/medium/high.
+
+Rollback and verification:
+- Rollback path:
+- Read-only verification probe:
+
+Expected useful output:
+- Signal wanted:
+- Normal vs suspicious:
+
+What to paste back:
+- Minimal lines/fields needed:
+```
+````
+
 ## Context Hygiene
 
 - Use the smallest tool or helper that answers the question with the least noise.

@@ -17,6 +17,15 @@ Command execution:
 - If RTK argument filtering breaks a valid command, use `rtk proxy <command> ...` for raw passthrough.
 - Do not run bare shell commands unless `rtk` itself is unavailable and the user approves that exception.
 
+Debugging command handling:
+- Apply the debugging safety model from AGENTS.md before running shell probes.
+- Use concise explanations for trivial read-only probes that Codex runs itself.
+- Use the full AGENTS.md command template for user-run, risky, non-trivial, compound, remote/live-system, or state-changing commands.
+- Treat unknown debugging environments as production until the user explicitly says otherwise.
+- Run read-only observational commands without asking when useful, but scope output narrowly and avoid broad secret, credential, raw log, environment, or customer-data dumps.
+- For low-risk reversible or state-changing commands, ask-then-run only when the user explicitly identifies the target as local, dev, or sandbox. For staging, production, customer-facing, or unknown targets, provide a user-run command instead.
+- Never run irreversible/high-impact/destructive commands. Provide safer probes first, then manual guidance with impact, alternatives, rollback limits, and verification.
+
 Codex tool routing:
 - Prefer dedicated file tools for local file operations: read exact paths, glob for filenames, grep for raw text/regex, and apply patches for edits.
 - Use Bash for execution, validation, git, package scripts, and process-level diagnostics; do not use Bash as a substitute for file read/write/search tools when a dedicated tool is available.
@@ -92,7 +101,6 @@ network_access = true
 exclude_slash_tmp = false
 exclude_tmpdir_env_var = false
 writable_roots = [
-    "~/scripts/.git",
     "~/.cache/uv",
     "~/.codex/skills"
 ]
@@ -107,42 +115,6 @@ status_line = ["model-with-reasoning", "context-remaining", "current-dir", "git-
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
-
-[projects."/home/mgajewskik/pai"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/.codex"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/dev/OpenMemory"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/.config/opencode"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/dev/opencode-openmemory"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/dev/ralph"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/dev/humem"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/scripts"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/test"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/wp/dev/featurestore/fs-core"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/dev/ansible"]
-trust_level = "trusted"
-
-[projects."/home/mgajewskik/.claude"]
-trust_level = "trusted"
 
 [mcp_servers.context7]
 command = "npx"
