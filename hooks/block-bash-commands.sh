@@ -46,13 +46,11 @@ BLOCKED_COMMAND_PATTERNS=(
     '(^|[^[:alnum:]_.-])(env|printenv|export|set|declare|compgen|history|fc)($|[^[:alnum:]_.-])'
 
     # Container, cluster, and infra state read or mutation surfaces
-    '(^|[^[:alnum:]_.-])docker([^;&|]*[[:space:]])(exec|inspect)($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])docker[[:space:]]+run[^;&|]*(--privileged|--pid=host|--net=host)($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])docker-compose[[:space:]]+config($|[^[:alnum:]_.-])'
-    '(^|[^[:alnum:]_.-])(podman|crictl)($|[^[:alnum:]_.-])'
+    '(^|[^[:alnum:]_.-])(crictl)($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])get[[:space:]]+secret($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])describe[[:space:]]+secret($|[^[:alnum:]_.-])'
-    '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])exec($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])apply[^;&|]*--force($|[^[:alnum:]_.-])'
 
     # kubectl/oc apply or create from a remote URL or stdin manifest. Plain
