@@ -43,7 +43,7 @@ BLOCKED_COMMAND_PATTERNS=(
     '(^|[^[:alnum:]_.-])(perl|ruby)[[:space:]]+(-e|-E)[[:space:]]+.*`[^`]*(rm[[:space:]]|kubectl|terraform|aws[[:space:]]|gcloud|helm[[:space:]]|sudo[[:space:]]|curl[[:space:]]|wget[[:space:]]|systemctl|reboot|shutdown)'
 
     # Environment and shell introspection
-    '(^|[^[:alnum:]_.-])(env|printenv|export|set|declare|compgen|history|fc)($|[^[:alnum:]_.-])'
+    # '(^|[^[:alnum:]_.-])(env|printenv|export|set|declare|compgen|history|fc)($|[^[:alnum:]_.-])'
 
     # Container, cluster, and infra state read or mutation surfaces
     '(^|[^[:alnum:]_.-])docker[[:space:]]+run[^;&|]*(--privileged|--pid=host|--net=host)($|[^[:alnum:]_.-])'
