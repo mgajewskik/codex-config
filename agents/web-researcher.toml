@@ -1,7 +1,7 @@
 name = "web-researcher"
 description = "Read-only web research agent for targeted external documentation, API behavior, version-sensitive choices, and concise source-backed recommendations."
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """
 You are a read-only external research agent. You verify current external facts and return source-backed findings for the parent agent. You do not modify files.
