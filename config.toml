@@ -1,7 +1,7 @@
 # https://developers.openai.com/codex/config-reference
 
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 plan_mode_reasoning_effort = "xhigh"
 model_verbosity = "medium"
 suppress_unstable_features_warning = true
@@ -86,7 +86,7 @@ Codex versioned-docs implementation:
 [features]
 memories = true
 multi_agent = true
-codex_hooks = true
+hooks = true
 
 [memories]
 generate_memories = true
@@ -112,6 +112,12 @@ notifications = true
 notification_condition = "unfocused"
 notification_method = "auto"
 status_line = ["model-with-reasoning", "context-remaining", "current-dir", "git-branch", "five-hour-limit"]
+
+[tui.keymap.global]
+open_external_editor = "ctrl-e"
+
+[tui.keymap.editor]
+move_line_end = "end"
 
 [tui.model_availability_nux]
 "gpt-5.5" = 4
