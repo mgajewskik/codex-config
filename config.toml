@@ -166,3 +166,20 @@ approval_mode = "approve"
 
 [mcp_servers.codebase_memory_mcp.tools.trace_path]
 approval_mode = "approve"
+
+[hooks.state]
+
+[hooks.state."/home/mgajewskik/.codex/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:0e10251d31cd6c5beeca73e80b599482ac2b7c8a55288fe0373cc9b8d7736681"
+
+[hooks.state."/home/mgajewskik/.codex/hooks.json:pre_tool_use:0:0"]
+trusted_hash = "sha256:628eacdc797d79f616273630b45cee987e3aa0d51227edcf7eba44418a80e7f1"
+
+[hooks.state."/home/mgajewskik/.codex/hooks.json:pre_tool_use:0:1"]
+trusted_hash = "sha256:eff513d3504a3961ce0bd496e23cd7010f9d322b516227cc199639590ab2cf78"
+
+[hooks.state."/home/mgajewskik/.codex/hooks.json:pre_tool_use:0:2"]
+trusted_hash = "sha256:626a2dd791a14cdcb45d6ee61c205d9f7520de5361159ab407229d9dab53bbd9"
+
+[hooks.state."/home/mgajewskik/.codex/hooks.json:pre_tool_use:0:3"]
+trusted_hash = "sha256:ea68f7801f36c06613739ce658978d4273cf7de1bdc15ca3bc8cddc8d64b46cc"
