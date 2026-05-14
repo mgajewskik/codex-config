@@ -101,9 +101,13 @@ network_access = true
 exclude_slash_tmp = false
 exclude_tmpdir_env_var = false
 writable_roots = [
-    "~/.cache/uv",
+    "~/.cache",
     "~/.codex/skills",
-    "~/.ansible"
+    "~/.codex/memories",
+    "~/.ansible",
+    "~/.local/state/mise",
+    "~/.local/share/uv",
+    "~/go/pkg"
 ]
 
 [tui]
