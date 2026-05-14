@@ -79,7 +79,7 @@ Completion integration:
 Codex versioned-docs implementation:
 - Before non-trivial implementation involving a library, framework, API, CLI, config format, runtime, or tool behavior, inspect exact local versions first.
 - Prefer version sources such as lockfiles, manifests, .mise.toml, .tool-versions, language/runtime files, Dockerfiles, and CI config.
-- Use Context7 with the exact version when available; otherwise use official versioned docs, local CLI help/schema/source, or web-researcher for targeted docs checks.
+- Prefer Context7 first for library/API/framework documentation searches when a Context7 library ID can be resolved, using the exact local version when available. Use official versioned docs, local source, local CLI help/schema output, or targeted web search when Context7 lacks coverage, returns conflicting/incomplete results, the source of truth is an exact URL/release note/security advisory, or the needed information is not library documentation.
 - If the version cannot be determined or docs conflict, label the uncertainty and choose the smallest local validation step before coding.
 """
 
