@@ -87,6 +87,7 @@ Codex versioned-docs implementation:
 memories = true
 multi_agent = true
 hooks = true
+remote_control = true
 
 [memories]
 generate_memories = true
