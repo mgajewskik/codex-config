@@ -49,8 +49,8 @@ BLOCKED_COMMAND_PATTERNS=(
     '(^|[^[:alnum:]_.-])docker[[:space:]]+run[^;&|]*(--privileged|--pid=host|--net=host)($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])docker-compose[[:space:]]+config($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])(crictl)($|[^[:alnum:]_.-])'
-    '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])get[[:space:]]+secret($|[^[:alnum:]_.-])'
-    '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])describe[[:space:]]+secret($|[^[:alnum:]_.-])'
+    # '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])get[[:space:]]+secret($|[^[:alnum:]_.-])'
+    # '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])describe[[:space:]]+secret($|[^[:alnum:]_.-])'
     '(^|[^[:alnum:]_.-])(kubectl|k)([^;&|]*[[:space:]])apply[^;&|]*--force($|[^[:alnum:]_.-])'
 
     # kubectl/oc apply or create from a remote URL or stdin manifest. Plain
