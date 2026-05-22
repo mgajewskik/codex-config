@@ -39,23 +39,24 @@ Codex tool routing:
 Primary orchestration:
 - Apply `AGENTS.md` as the reusable behavior contract. Keep Codex-specific tool, shell, and subagent behavior here.
 - Keep task framing, success criteria, anti-criteria, scope boundaries, integration, final validation choice, and the user-facing summary in the parent agent.
-- Treat subagents as context-isolation tools as well as parallel workers. Subagent output is context, not proof.
-- Delegate only after the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet.
-- Do not delegate when local inspection is faster, the work cannot be bounded, or the next parent action depends on immediate local evidence.
+- Default to using subagents as bounded context-isolation helpers when they can answer a separable question or complete a bounded slice without polluting the parent context. Do not reserve subagents only for review or parallel speedups.
+- Delegate once the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet. For MODERATE+ work, actively look for repo research, external research, validation, implementation, and review lanes to delegate.
+- Keep work local when the next parent action depends on immediate evidence, the probe is an exact known file/range read or one obvious command, the work cannot be bounded, or delegation overhead clearly exceeds the context saved.
 - Never let multiple writing agents edit the same file concurrently. Parallel implementers are allowed only with disjoint write sets and already-decided shared contracts.
 
 Subagent lanes:
-- Use `codebase-researcher` for broad repo mapping, multi-module tracing, conventions, and impact-surface discovery.
-- Use `web-researcher` for targeted external docs, current API behavior, version-sensitive facts, or concise source-backed recommendations.
+- Use `codebase-researcher` by default for broad repo mapping, unknown conventions, multi-module tracing, or impact-surface discovery across more than one area.
+- Use `web-researcher` by default for targeted external docs, current API behavior, version-sensitive facts, or concise source-backed recommendations.
 - Use `deep-web-researcher` for broad external research, contested guidance, learning roadmaps, operational research, and comprehensive source-backed dossiers that should persist as markdown.
 - Use `implementer` for bounded implementation slices after criteria, risks, owned files, allowed edits, and forbidden edits are clear.
-- Use `tester` for focused tests, TDD probes, verification matrices, or when the nearest validation check is unclear.
+- Use `tester` when validation is unclear, multi-axis, expensive to reason about in the parent context, or useful as an independent check after implementation.
 - Automatically use `reviewer` before final completion for significant code, config, policy, permission, hook, security, public API/schema, or multi-file behavior changes. Do not ask the user first.
-- Use `fast` only for explicit low-risk exploration, focused edits, or summaries where speed matters more than depth.
+- Use `fast` for bounded low-risk side checks, focused edits, or concise summaries where speed matters more than depth.
 
 Delegation packet discipline:
 - Treat subagents as cleanly started bounded workers unless fork_context=true is explicitly justified.
-- Every packet must include: goal or exact question, task type, in-scope and out-of-scope boundaries, constraints and prohibitions, current evidence, criteria, anti-criteria, files/symbols/versions when relevant, validation requirements, and expected output format.
+- Light read-only research packets may include only: exact question, in-scope and out-of-scope boundaries, constraints and prohibitions, current evidence, and expected output format.
+- Full packets must include: goal or exact question, task type, in-scope and out-of-scope boundaries, constraints and prohibitions, current evidence, criteria, anti-criteria, files/symbols/versions when relevant, validation requirements, and expected output format.
 - Implementation packets must also include: owned files, allowed edits, forbidden edits, required validation or next best check, and evidence required back.
 - Review packets must also include: changed artifacts, direct impact paths, validation evidence gathered, and specific risks to attack.
 - External research packets must also include: exact research question, version constraints and local version evidence when available, preferred source quality, forbidden approaches, and required citation/source format.

@@ -126,6 +126,7 @@ What to paste back:
 - Prefer exact local evidence when paths are known; use broad search only to discover what is unknown.
 - Stop exploration when another probe is unlikely to change the decision.
 - If repeated rework stops producing progress, stop and report what is done, what is blocked, and the smallest next decision.
+- Use subagents freely as bounded context-isolation helpers when available and when doing so keeps the parent context cleaner; keep tool-specific agent names and routing mechanics in the tool-specific config.
 - When delegating, pass only the goal, scope, constraints, evidence, criteria, anti-criteria, and expected output needed for that lane.
 - Do not pass raw memory dumps or broad conversation history to subagents by default.
 
