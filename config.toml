@@ -38,9 +38,11 @@ Codex tool routing:
 
 Primary orchestration:
 - Apply `AGENTS.md` as the reusable behavior contract. Keep Codex-specific tool, shell, and subagent behavior here.
+- The user has explicitly granted standing authorization to use `spawn_agent`/subagents automatically for context preservation. Treat this as permission to spawn bounded subagents without asking again when the goal, scope, ownership, safety constraints, and expected output are clear.
 - Keep task framing, success criteria, anti-criteria, scope boundaries, integration, final validation choice, and the user-facing summary in the parent agent.
 - Default to using subagents as bounded context-isolation helpers when they can answer a separable question or complete a bounded slice without polluting the parent context. Do not reserve subagents only for review or parallel speedups.
 - Delegate once the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet. For MODERATE+ work, actively look for repo research, external research, validation, implementation, and review lanes to delegate.
+- Do not ask merely for subagent permission when the standing authorization applies. Ask only when the delegated work itself needs clarification, secrets, approval for risky action, or a broader/harder-to-reverse scope than the user requested.
 - Keep work local when the next parent action depends on immediate evidence, the probe is an exact known file/range read or one obvious command, the work cannot be bounded, or delegation overhead clearly exceeds the context saved.
 - Never let multiple writing agents edit the same file concurrently. Parallel implementers are allowed only with disjoint write sets and already-decided shared contracts.
 
@@ -104,7 +106,8 @@ exclude_slash_tmp = false
 exclude_tmpdir_env_var = false
 writable_roots = [
     "~/.cache",
-    "~/.codex/skills",
+    # "~/.codex/skills",
+    "~/.config/opencode/skills",
     "~/.codex/memories",
     "~/.ansible",
     "~/.local/state/mise",
