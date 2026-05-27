@@ -54,6 +54,13 @@ Subagent lanes:
 - Use `tester` when validation is unclear, multi-axis, expensive to reason about in the parent context, or useful as an independent check after implementation.
 - Automatically use `reviewer` before final completion for significant code, config, policy, permission, hook, security, public API/schema, or multi-file behavior changes. Do not ask the user first.
 
+Subagent lifecycle:
+- Treat a `wait_agent` timeout as "still running", not as failure or completion.
+- Do not call `close_agent` to force partial results from a running subagent.
+- When a required subagent is still running, continue useful non-overlapping local work or call `wait_agent` again with a longer timeout, up to the tool maximum.
+- Close a subagent only after it reaches a final status, the user explicitly cancels it, or its result is no longer relevant to the task.
+- Before final response, collect final statuses from required subagents or explicitly report any optional subagents left unintegrated.
+
 Delegation packet discipline:
 - Treat subagents as cleanly started bounded workers unless fork_context=true is explicitly justified.
 - Light read-only research packets may include only: exact question, in-scope and out-of-scope boundaries, constraints and prohibitions, current evidence, and expected output format.
