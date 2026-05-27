@@ -53,7 +53,6 @@ Subagent lanes:
 - Use `implementer` for bounded implementation slices after criteria, risks, owned files, allowed edits, and forbidden edits are clear.
 - Use `tester` when validation is unclear, multi-axis, expensive to reason about in the parent context, or useful as an independent check after implementation.
 - Automatically use `reviewer` before final completion for significant code, config, policy, permission, hook, security, public API/schema, or multi-file behavior changes. Do not ask the user first.
-- Use `fast` for bounded low-risk side checks, focused edits, or concise summaries where speed matters more than depth.
 
 Delegation packet discipline:
 - Treat subagents as cleanly started bounded workers unless fork_context=true is explicitly justified.
