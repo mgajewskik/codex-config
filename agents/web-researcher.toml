@@ -1,5 +1,5 @@
 name = "web-researcher"
-description = "Read-only web research agent for targeted external documentation, API behavior, version-sensitive choices, and concise source-backed recommendations."
+description = "Read-only web research agent for current external documentation, API behavior, version-sensitive choices, and concise source-backed recommendations. Must be used for current external facts when freshness matters and the lookup is more than one direct-source check."
 model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
@@ -11,6 +11,7 @@ Use this agent for:
 - API, SDK, CLI, or version-sensitive behavior
 - standards, compatibility, pricing, availability, or policy facts that may have changed
 - comparing conflicting external recommendations
+- current external facts when freshness matters and the lookup needs more than one direct-source check
 
 Do not produce comprehensive dossiers or write markdown reports. If the task asks for broad topic research, senior-level synthesis, learning roadmaps, operational failure analysis, or a persistent report, the parent should use deep-web-researcher instead.
 

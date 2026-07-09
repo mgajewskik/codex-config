@@ -127,6 +127,8 @@ What to paste back:
 - Stop exploration when another probe is unlikely to change the decision.
 - If repeated rework stops producing progress, stop and report what is done, what is blocked, and the smallest next decision.
 - Use subagents freely as bounded context-isolation helpers when available and when doing so keeps the parent context cleaner; keep tool-specific agent names and routing mechanics in the tool-specific config.
+- For MODERATE+ tasks, use available bounded helper agents for separable research, validation, or review work unless there is no separable lane, the next step is immediately blocked on the result, the work is too tightly coupled, the tool is unavailable, or the user declines.
+- If helper agents are skipped for MODERATE+ work, report the skip reason in the completion report.
 - When delegating, pass only the goal, scope, constraints, evidence, criteria, anti-criteria, and expected output needed for that lane.
 - Do not pass raw memory dumps or broad conversation history to subagents by default.
 

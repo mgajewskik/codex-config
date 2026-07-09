@@ -40,15 +40,17 @@ Primary orchestration:
 - Apply `AGENTS.md` as the reusable behavior contract. Keep Codex-specific tool, shell, and subagent behavior here.
 - The user has explicitly granted standing authorization to use `spawn_agent`/subagents automatically for context preservation. Treat this as permission to spawn bounded subagents without asking again when the goal, scope, ownership, safety constraints, and expected output are clear.
 - Keep task framing, success criteria, anti-criteria, scope boundaries, integration, final validation choice, and the user-facing summary in the parent agent.
+- For SIMPLE+ tasks, make an explicit delegation decision after task sizing: identify any separable sidecar lane and decide whether it should run in a subagent or stay local.
 - Default to using subagents as bounded context-isolation helpers when they can answer a separable question or complete a bounded slice without polluting the parent context. Do not reserve subagents only for review or parallel speedups.
-- Delegate once the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet. For MODERATE+ work, actively look for repo research, external research, validation, implementation, and review lanes to delegate.
+- Delegate once the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet. For MODERATE+ work, use at least one bounded subagent when there is a separable repo research, external research, validation, implementation, or review lane.
+- If subagents are skipped for MODERATE+ work, say so in the final response as `Subagents: skipped` with one of these reasons: `no separable lane`, `immediate blocker`, `too tightly coupled`, `tool unavailable`, or `user declined`.
 - Do not ask merely for subagent permission when the standing authorization applies. Ask only when the delegated work itself needs clarification, secrets, approval for risky action, or a broader/harder-to-reverse scope than the user requested.
 - Keep work local when the next parent action depends on immediate evidence, the probe is an exact known file/range read or one obvious command, the work cannot be bounded, or delegation overhead clearly exceeds the context saved.
 - Never let multiple writing agents edit the same file concurrently. Parallel implementers are allowed only with disjoint write sets and already-decided shared contracts.
 
 Subagent lanes:
-- Use `codebase-researcher` by default for broad repo mapping, unknown conventions, multi-module tracing, or impact-surface discovery across more than one area.
-- Use `web-researcher` by default for targeted external docs, current API behavior, version-sensitive facts, or concise source-backed recommendations.
+- Use `codebase-researcher` by default, and for MODERATE+ work require it, for broad repo mapping, unknown conventions, multi-module tracing, or impact-surface discovery across more than one area.
+- Use `web-researcher` by default, and require it, for current external facts when freshness matters and the lookup is more than one direct-source check.
 - Use `deep-web-researcher` for broad external research, contested guidance, learning roadmaps, operational research, and comprehensive source-backed dossiers that should persist as markdown.
 - Use `implementer` for bounded implementation slices after criteria, risks, owned files, allowed edits, and forbidden edits are clear.
 - Use `tester` when validation is unclear, multi-axis, expensive to reason about in the parent context, or useful as an independent check after implementation.

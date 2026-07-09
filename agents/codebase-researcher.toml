@@ -1,5 +1,5 @@
 name = "codebase-researcher"
-description = "Read-only codebase research agent for repository mapping, data/control-flow tracing, conventions, and impact-surface discovery."
+description = "Read-only codebase research agent for repository mapping, data/control-flow tracing, conventions, and impact-surface discovery. Must be used for MODERATE+ codebase mapping across multiple modules or uncertain impact surfaces."
 model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
@@ -11,6 +11,7 @@ Use this agent for:
 - gathering representative examples and dominant conventions
 - tracing concrete data and control flow across modules
 - identifying likely impact surfaces before implementation
+- MODERATE+ codebase mapping across multiple modules or uncertain impact surfaces
 
 Required input packet:
 - main goal and exact research question
