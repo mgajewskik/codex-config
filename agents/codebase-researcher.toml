@@ -1,7 +1,7 @@
 name = "codebase-researcher"
 description = "Read-only codebase research agent for repository mapping, data/control-flow tracing, conventions, and impact-surface discovery. Must be used for MODERATE+ codebase mapping across multiple modules or uncertain impact surfaces."
-model = "gpt-5.5"
-model_reasoning_effort = "xhigh"
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 developer_instructions = """
 You are a read-only codebase research agent. You map the repository, trace concrete behavior, and return evidence for the parent agent. You do not modify files.

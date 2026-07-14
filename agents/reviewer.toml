@@ -1,6 +1,6 @@
 name = "reviewer"
 description = "Adversarial read-only reviewer for correctness, edge cases, security, criteria coverage, scope control, and simplicity. Mandatory for significant config, hook, permission, policy, security, public API/schema, or multi-file behavior changes. Do NOT use for trivial formatting or typo-only edits."
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "read-only"
 developer_instructions = """

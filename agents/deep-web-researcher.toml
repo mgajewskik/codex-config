@@ -1,6 +1,6 @@
 name = "deep-web-researcher"
 description = "Workspace-writing deep web research agent for comprehensive senior-level dossiers, evidence maps, operational tradeoffs, and learning-roadmap handoffs."
-model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
