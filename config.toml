@@ -37,41 +37,49 @@ Codex tool routing:
 - Do not use mutating MCP operations such as `index_repository`, `delete_project`, `manage_adr update`, or `ingest_traces` unless the task explicitly requires them.
 
 Primary orchestration:
-- Apply `AGENTS.md` as the reusable behavior contract. Keep Codex-specific tool, shell, and subagent behavior here.
-- The user has explicitly granted standing authorization to use `spawn_agent`/subagents automatically for context preservation. Treat this as permission to spawn bounded subagents without asking again when the goal, scope, ownership, safety constraints, and expected output are clear.
+- Apply `AGENTS.md` as the reusable behavior contract. Keep Codex-specific tool, shell, and Multi-Agent V2 behavior here.
+- The user has explicitly granted standing authorization to use Multi-Agent V2 automatically for context preservation. Treat this as permission to spawn bounded agent threads without asking again when the goal, scope, ownership, safety constraints, and expected output are clear.
 - Keep task framing, success criteria, anti-criteria, scope boundaries, integration, final validation choice, and the user-facing summary in the parent agent.
-- For SIMPLE+ tasks, make an explicit delegation decision after task sizing: identify any separable sidecar lane and decide whether it should run in a subagent or stay local.
-- Default to using subagents as bounded context-isolation helpers when they can answer a separable question or complete a bounded slice without polluting the parent context. Do not reserve subagents only for review or parallel speedups.
-- Delegate once the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet. For MODERATE+ work, use at least one bounded subagent when there is a separable repo research, external research, validation, implementation, or review lane.
-- If subagents are skipped for MODERATE+ work, say so in the final response as `Subagents: skipped` with one of these reasons: `no separable lane`, `immediate blocker`, `too tightly coupled`, `tool unavailable`, or `user declined`.
-- Do not ask merely for subagent permission when the standing authorization applies. Ask only when the delegated work itself needs clarification, secrets, approval for risky action, or a broader/harder-to-reverse scope than the user requested.
+- For SIMPLE+ tasks, make an explicit delegation decision after task sizing: identify any separable sidecar lane and decide whether it should run in a V2 agent thread or stay local.
+- Default to bounded V2 agent threads when they can answer a separable question or complete a bounded slice without polluting the parent context. Do not reserve delegation only for review or parallel speedups.
+- Delegate once the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet. For MODERATE+ work, use at least one bounded V2 agent thread when there is a separable repo research, external research, validation, implementation, or review lane.
+- If delegation is skipped for MODERATE+ work, say so in the final response as `Agents: skipped` with one of these reasons: `no separable lane`, `immediate blocker`, `too tightly coupled`, `tool unavailable`, or `user declined`.
+- Do not ask merely for agent-thread permission when the standing authorization applies. Ask only when the delegated work itself needs clarification, secrets, approval for risky action, or a broader/harder-to-reverse scope than the user requested.
 - Keep work local when the next parent action depends on immediate evidence, the probe is an exact known file/range read or one obvious command, the work cannot be bounded, or delegation overhead clearly exceeds the context saved.
 - Never let multiple writing agents edit the same file concurrently. Parallel implementers are allowed only with disjoint write sets and already-decided shared contracts.
 
-Subagent lanes:
-- Use `codebase-researcher` by default, and for MODERATE+ work require it, for broad repo mapping, unknown conventions, multi-module tracing, or impact-surface discovery across more than one area.
-- Use `web-researcher` by default, and require it, for current external facts when freshness matters and the lookup is more than one direct-source check.
+V2 delegation and named-agent routing:
+- Proactively select the closest configured `agent_type` whenever a task has a bounded, separable research, implementation, validation, or review lane.
+- Use `codebase-researcher` for broad repo mapping, unknown conventions, multi-module tracing, or impact-surface discovery across more than one area.
+- Use `web-researcher` for current external facts when freshness matters and the lookup is more than one direct-source check.
 - Use `deep-web-researcher` for broad external research, contested guidance, learning roadmaps, operational research, and comprehensive source-backed dossiers that should persist as markdown.
 - Use `implementer` for bounded implementation slices after criteria, risks, owned files, allowed edits, and forbidden edits are clear.
 - Use `tester` when validation is unclear, multi-axis, expensive to reason about in the parent context, or useful as an independent check after implementation.
 - Automatically use `reviewer` before final completion for significant code, config, policy, permission, hook, security, public API/schema, or multi-file behavior changes. Do not ask the user first.
+- Let the named-agent TOML own model, reasoning effort, description, role instructions, and any role-specific sandbox override. Pass `agent_type`; do not duplicate model or reasoning values at spawn time.
+- Use a unique lowercase underscore `task_name` to identify each delegated task and thread; `task_name` does not select the role.
 
-Subagent lifecycle:
-- Treat a `wait_agent` timeout as "still running", not as failure or completion.
-- Do not call `close_agent` to force partial results from a running subagent.
-- When a required subagent is still running, continue useful non-overlapping local work or call `wait_agent` again with a longer timeout, up to the tool maximum.
-- Close a subagent only after it reaches a final status, the user explicitly cancels it, or its result is no longer relevant to the task.
-- Before final response, collect final statuses from required subagents or explicitly report any optional subagents left unintegrated.
+V2 context transfer:
+- Use `fork_turns = "none"` by default for named agents.
+- Use a positive bounded turn count only when specific recent conversation turns are necessary.
+- Never use `fork_turns = "all"` for named agents.
+- Pass only the goal, scope, constraints, current evidence, criteria, anti-criteria, validation requirements, and expected output needed for the bounded lane.
 
-Delegation packet discipline:
-- Treat subagents as cleanly started bounded workers unless fork_context=true is explicitly justified.
-- Light read-only research packets may include only: exact question, in-scope and out-of-scope boundaries, constraints and prohibitions, current evidence, and expected output format.
-- Full packets must include: goal or exact question, task type, in-scope and out-of-scope boundaries, constraints and prohibitions, current evidence, criteria, anti-criteria, files/symbols/versions when relevant, validation requirements, and expected output format.
-- Implementation packets must also include: owned files, allowed edits, forbidden edits, required validation or next best check, and evidence required back.
-- Review packets must also include: changed artifacts, direct impact paths, validation evidence gathered, and specific risks to attack.
-- External research packets must also include: exact research question, version constraints and local version evidence when available, preferred source quality, forbidden approaches, and required citation/source format.
-- Do not pass raw conversation history, raw memory dumps, or broad context by default.
-- Use fork_context=true only when the subagent genuinely needs the full conversation history; state the reason when doing so.
+V2 lifecycle:
+- Spawn a new named thread for each new bounded lane.
+- Use agent listing to inspect live thread state.
+- Use messaging to provide information without starting another turn.
+- Use a follow-up task to trigger additional work on a completed or idle thread.
+- Treat mailbox waiting as notification delivery, not as a targeted result-return call; a timeout means the thread may still be running.
+- Interrupt a running task only when it is no longer relevant or must change immediately.
+- Before final response, collect final statuses from required agent threads or explicitly report any optional threads left unintegrated.
+
+Generic V2 fallback:
+- Prefer the matching configured named agent.
+- If the active V2 spawn schema unexpectedly lacks `agent_type`, a generic V2 child may perform the bounded task using a role-specific delegation packet.
+- Report this as `generic fallback for:<role>`.
+- Never claim that a generic thread used a named role or its model configuration.
+- Never fall back to Multi-Agent V1.
 
 Review gate:
 - Reviewer scope must cover changed artifacts, direct impact paths, and interactions with existing config, rules, hooks, permissions, schemas, and policies when relevant.
@@ -80,7 +88,7 @@ Review gate:
 - If reviewer is skipped, the final answer must include `Reviewer: skipped` and the reason: TRIVIAL, SIMPLE-only, runtime policy blocked, or user explicitly declined.
 
 Completion integration:
-- Before final response, reconcile subagent findings with current local evidence.
+- Before final response, reconcile delegated findings with current local evidence.
 - Verify each criterion or state why it remains unverified.
 - Explicitly check anti-criteria for non-trivial work.
 - Separate inspected, executed, tested, reviewed, and inferred claims when it matters.
@@ -96,8 +104,13 @@ Codex versioned-docs implementation:
 
 [features]
 memories = true
-multi_agent = true
+multi_agent = false
 hooks = true
+
+[features.multi_agent_v2]
+enabled = true
+hide_spawn_agent_metadata = false
+tool_namespace = "agents"
 
 [memories]
 generate_memories = true
