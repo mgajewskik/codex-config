@@ -81,8 +81,14 @@ V2 lifecycle:
 - Use agent listing to inspect live thread state.
 - Use messaging to provide information without starting another turn.
 - Use a follow-up task to trigger additional work on a completed or idle thread.
-- Treat mailbox waiting as notification delivery, not as a targeted result-return call; a timeout means the thread may still be running.
-- Interrupt a running task only when it is no longer relevant or must change immediately.
+- Treat mailbox waiting as notification delivery, not as a targeted result-return call. A `wait_agent` timeout means only that no notification arrived; it is never evidence of failure, inactivity, or a hung child.
+- The following never justify interruption: `last_task_message: null`, long elapsed time, repeated waits, high token usage, `xhigh` reasoning, many tool calls, parent impatience, or concurrency pressure.
+- While a required child remains `running`, continue safe non-overlapping parent work or repeat bounded 30-60 second mailbox waits, providing user-facing progress between waits when appropriate.
+- Do not finish the parent task until every required reviewer or validator reaches a final status.
+- Do not spawn a replacement reviewer while the original reviewer remains active.
+- Do not use `send_message` to hurry a child, request partial output, or shorten its review. Send messages only when new evidence materially helps the unchanged task.
+- Only explicit user cancellation or a newer user request that clearly invalidates the delegated scope permits `interrupt_agent`. Record that reason before interruption.
+- If the scope remains valid but needs clarification, send bounded information and let the existing child continue instead of restarting it.
 - Before final response, collect final statuses from required agent threads or explicitly report any optional threads left unintegrated.
 
 Generic V2 fallback:
