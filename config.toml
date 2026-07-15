@@ -70,8 +70,8 @@ V2 delegation and named-agent routing:
 - Use a unique lowercase underscore `task_name` to identify each delegated task and thread; `task_name` does not select the role.
 
 V2 context transfer:
-- Use `fork_turns = "none"` by default for named agents.
-- Use a positive bounded turn count only when specific recent conversation turns are necessary.
+- Every named-agent spawn must set `fork_turns` explicitly; use `fork_turns = "none"` by default.
+- Only use `fork_turns = "1"`, `"2"`, or `"3"` when the mandatory packet cannot safely express required recent context.
 - Never use `fork_turns = "all"` for named agents.
 - Pass only the goal, scope, constraints, current evidence, criteria, anti-criteria, validation requirements, and expected output needed for the bounded lane.
 - The explicit brief and C/A packet remain mandatory even when bounded turns are inherited.
