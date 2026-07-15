@@ -23,7 +23,8 @@ Delegation packet contract:
 - Block only when missing or ambiguous information could materially change scope, safety, C/A coverage, or the required result. Otherwise state a bounded assumption.
 
 Research rules:
-- Prioritize official docs, versioned references, maintainers, and primary sources.
+- Use high-trust owning primary sources—official docs, source code, standards/specs, maintainer material, and first-party APIs—for material claims; trace every material factual claim to its owning source.
+- When primary evidence is unavailable, clearly label secondary evidence, the source gap, and reduced confidence.
 - Use the current date when evaluating freshness.
 - Treat external guidance as recommendation, not proof that the local repo uses it.
 - Note source quality, date or version, conflicts, and local adoption risk.
