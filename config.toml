@@ -40,6 +40,9 @@ Primary orchestration:
 - Apply `AGENTS.md` as the reusable behavior contract. Keep Codex-specific tool, shell, and Multi-Agent V2 behavior here.
 - The user has explicitly granted standing authorization to use Multi-Agent V2 automatically for context preservation. Treat this as permission to spawn bounded agent threads without asking again when the goal, scope, ownership, safety constraints, and expected output are clear.
 - Keep task framing, success criteria, anti-criteria, scope boundaries, integration, final validation choice, and the user-facing summary in the parent agent.
+- For each delegated root task, normalize testable criteria as `C1`, `C2`, and so on, and meaningful anti-criteria as `A1`, `A2`, and so on. Reset numbering for each root task without changing the user's meaning, thresholds, or prohibitions.
+- Keep one parent-owned C/A ledger. Assign every item to exactly one child lane or retain it for parent verification; preserve the IDs across follow-up tasks, review, and final integration.
+- Send each child only its applicable C/A items. Use `ANTI_CRITERIA: none` when a lane has no meaningful anti-criterion instead of inventing boilerplate.
 - For SIMPLE+ tasks, make an explicit delegation decision after task sizing: identify any separable sidecar lane and decide whether it should run in a V2 agent thread or stay local.
 - Default to bounded V2 agent threads when they can answer a separable question or complete a bounded slice without polluting the parent context. Do not reserve delegation only for review or parallel speedups.
 - Delegate once the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet. For MODERATE+ work, use at least one bounded V2 agent thread when there is a separable repo research, external research, validation, implementation, or review lane.
@@ -47,6 +50,13 @@ Primary orchestration:
 - Do not ask merely for agent-thread permission when the standing authorization applies. Ask only when the delegated work itself needs clarification, secrets, approval for risky action, or a broader/harder-to-reverse scope than the user requested.
 - Keep work local when the next parent action depends on immediate evidence, the probe is an exact known file/range read or one obvious command, the work cannot be bounded, or delegation overhead clearly exceeds the context saved.
 - Never let multiple writing agents edit the same file concurrently. Parallel implementers are allowed only with disjoint write sets and already-decided shared contracts.
+
+V2 delegation packet:
+- Every named delegation, including SIMPLE work, must explicitly include these fields: `OVERALL_GOAL`, `WHY_THIS_MATTERS`, `DESIRED_END_STATE`, `LANE`, `SCOPE`, `OUT_OF_SCOPE`, `CRITERIA`, `ANTI_CRITERIA`, `CONSTRAINTS`, `CURRENT_EVIDENCE`, `REQUIRED_VALIDATION`, and `EXPECTED_OUTPUT`.
+- Give the child a concise explanation of the overall direction and how its bounded lane contributes. Do not use inherited turns as a substitute for the explicit brief or C/A packet.
+- Express adjacent ownership through concise `OUT_OF_SCOPE` boundaries. Use the V2 `task_name` and canonical child path as delegation identity; do not add a redundant delegation ID.
+- A child blocks only when missing or ambiguous information could materially change scope, ownership, safety, C/A coverage, or the required result. Non-material gaps may use an explicit bounded assumption.
+- If a completed child omits an assigned C/A item, send one V2 follow-up task to the same thread naming the missing IDs. If the second result remains incomplete, mark those items unverified and handle or report them directly.
 
 V2 delegation and named-agent routing:
 - Proactively select the closest configured `agent_type` whenever a task has a bounded, separable research, implementation, validation, or review lane.
@@ -64,6 +74,7 @@ V2 context transfer:
 - Use a positive bounded turn count only when specific recent conversation turns are necessary.
 - Never use `fork_turns = "all"` for named agents.
 - Pass only the goal, scope, constraints, current evidence, criteria, anti-criteria, validation requirements, and expected output needed for the bounded lane.
+- The explicit brief and C/A packet remain mandatory even when bounded turns are inherited.
 
 V2 lifecycle:
 - Spawn a new named thread for each new bounded lane.
@@ -91,6 +102,8 @@ Completion integration:
 - Before final response, reconcile delegated findings with current local evidence.
 - Verify each criterion or state why it remains unverified.
 - Explicitly check anti-criteria for non-trivial work.
+- Treat child prose and research as context, not proof of routing, model selection, packet transfer, or scope compliance. Prefer runtime metadata, matching `task_name` and canonical child path, C/A receipt, behavioral canaries, and independent file or test checks.
+- Keep the full C/A ownership ledger internal. Report only a concise criterion summary, failures, and unchecked items to the user.
 - Separate inspected, executed, tested, reviewed, and inferred claims when it matters.
 - Report suggested cleanup separately instead of doing it opportunistically.
 - When work is complete, say the changes are ready and let the user decide when to commit.

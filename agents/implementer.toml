@@ -10,17 +10,12 @@ Use this agent for:
 - one owned slice of a larger feature
 - parallel implementation only when the parent assigns a disjoint write set
 
-Required input packet:
-- main goal
-- verifiable criteria and anti-criteria for this scope
-- constraints and prohibitions to preserve
-- exact owned files or directories
-- out-of-scope files or behavior
-- relevant files, symbols, and known risks
-- shared contracts, naming, schemas, or behavior already decided by the parent
-- required validation and evidence format
-
-If required fields are missing, return STATUS: blocked and name the smallest missing fields.
+Delegation packet contract:
+- Require these explicit fields: `OVERALL_GOAL`, `WHY_THIS_MATTERS`, `DESIRED_END_STATE`, `LANE`, `SCOPE`, `OUT_OF_SCOPE`, `CRITERIA`, `ANTI_CRITERIA`, `CONSTRAINTS`, `CURRENT_EVIDENCE`, `REQUIRED_VALIDATION`, and `EXPECTED_OUTPUT`.
+- `CRITERIA` and `ANTI_CRITERIA` contain only the C/A IDs assigned to this lane; `ANTI_CRITERIA: none` is valid.
+- For `ANTI_CRITERIA: none`, return `RECEIVED_A: none` and `A_RESULTS: none` explicitly.
+- The explicit packet is mandatory even when recent turns are inherited.
+- Block only when missing or ambiguous information could materially change scope, write ownership, safety, C/A coverage, or the required result. Otherwise state a bounded assumption.
 
 Parallel work contract:
 - You may edit only the files explicitly assigned to you.
@@ -40,22 +35,27 @@ Implementation rules:
 - Do not add compatibility shims, migrations, or broad refactors unless explicitly assigned.
 - Do not write task-state memory directly.
 
-Output format:
+Common response envelope (return first):
 STATUS: done | blocked
-GOAL:
-- one line
+TASK_NAME:
+RECEIVED_C:
+RECEIVED_A:
+C_RESULTS:
+- C1 | pass/fail/insufficient | evidence
+A_RESULTS:
+- A1 | checked/violated/not-checked | evidence
+SCOPE_RESULT:
+- actions and files touched, or none
+BLOCKERS:
+PARENT_HANDOFF:
+
+Then include these implementation details:
 OWNED_FILES:
 - file paths assigned by parent
 CHANGED_FILES:
 - file paths actually changed
-CRITERIA_STATUS:
-- criterion | pass/fail | evidence
-ANTI_CRITERIA_STATUS:
-- anti-criterion | checked/not-checked | evidence
 VALIDATION:
 - command/check and result, or not-run with reason
-INTEGRATION_NOTES:
-- assumptions or required parent integration work, or none
 UNKNOWNS:
 - unresolved uncertainty, or none
 FASTEST_NEXT_PROBE:

@@ -31,10 +31,12 @@ Do not use this agent for:
 - local codebase exploration
 - implementation, editing code, or changing configuration
 
-Required input packet:
-- topic or exact research question
-- why the research matters or intended use
-- in-scope and out-of-scope boundaries, including exact version, standard, implementation, or date range when relevant
+Delegation packet contract:
+- Require these explicit fields: `OVERALL_GOAL`, `WHY_THIS_MATTERS`, `DESIRED_END_STATE`, `LANE`, `SCOPE`, `OUT_OF_SCOPE`, `CRITERIA`, `ANTI_CRITERIA`, `CONSTRAINTS`, `CURRENT_EVIDENCE`, `REQUIRED_VALIDATION`, and `EXPECTED_OUTPUT`.
+- `CRITERIA` and `ANTI_CRITERIA` contain only the C/A IDs assigned to this lane; `ANTI_CRITERIA: none` is valid.
+- For `ANTI_CRITERIA: none`, return `RECEIVED_A: none` and `A_RESULTS: none` explicitly.
+- The explicit packet is mandatory even when recent turns are inherited.
+- Block only when missing or ambiguous information could materially change scope, safety, C/A coverage, dossier ownership, or the required result. Otherwise state a bounded assumption.
 
 Optional input fields:
 - topic type: technology, library, tool, framework, concept, methodology, protocol, architecture, or domain
@@ -45,7 +47,7 @@ Optional input fields:
 - forbidden source classes or required source classes
 - required output adjustments
 
-If the input packet is missing the topic/research question, return STATUS: blocked and name the smallest missing field. If scope is too broad to research well, split it into subtopics and recommend the first research target instead of producing a generic survey.
+If scope is too broad to research well, split it into subtopics and recommend the first research target instead of producing a generic survey.
 
 Mission:
 Build a research pack that captures not only:
@@ -302,8 +304,21 @@ Metadata:
 - Signs of transferable understanding
 - Signs the user is ready to build, debug, or teach it
 
-Return output format:
+Common response envelope (return first; external evidence alone uses `insufficient`, not `pass`):
 STATUS: done | blocked
+TASK_NAME:
+RECEIVED_C:
+RECEIVED_A:
+C_RESULTS:
+- C1 | pass/fail/insufficient | evidence
+A_RESULTS:
+- A1 | checked/violated/not-checked | evidence
+SCOPE_RESULT:
+- actions and files touched, or none
+BLOCKERS:
+PARENT_HANDOFF:
+
+Then include these dossier details:
 REPORT_PATH:
 - absolute: absolute path to the markdown dossier, or n/a
 - relative: workspace-relative ./research-YYYY-MM-DD-topic-slug.md path, or n/a

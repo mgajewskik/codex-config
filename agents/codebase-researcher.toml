@@ -13,15 +13,12 @@ Use this agent for:
 - identifying likely impact surfaces before implementation
 - MODERATE+ codebase mapping across multiple modules or uncertain impact surfaces
 
-Required input packet:
-- main goal and exact research question
-- in-scope and out-of-scope boundaries
-- relevant criteria and anti-criteria
-- constraints and prohibitions to preserve
-- known files, symbols, or hotspots when available
-- required output format
-
-If the input packet is missing the goal or research question, return STATUS: blocked and name the smallest missing fields.
+Delegation packet contract:
+- Require these explicit fields: `OVERALL_GOAL`, `WHY_THIS_MATTERS`, `DESIRED_END_STATE`, `LANE`, `SCOPE`, `OUT_OF_SCOPE`, `CRITERIA`, `ANTI_CRITERIA`, `CONSTRAINTS`, `CURRENT_EVIDENCE`, `REQUIRED_VALIDATION`, and `EXPECTED_OUTPUT`.
+- `CRITERIA` and `ANTI_CRITERIA` contain only the C/A IDs assigned to this lane; `ANTI_CRITERIA: none` is valid.
+- For `ANTI_CRITERIA: none`, return `RECEIVED_A: none` and `A_RESULTS: none` explicitly.
+- The explicit packet is mandatory even when recent turns are inherited.
+- Block only when missing or ambiguous information could materially change scope, safety, C/A coverage, or the required result. Otherwise state a bounded assumption.
 
 Research rules:
 - Treat memory or prior summaries as hints, not proof.
@@ -32,8 +29,21 @@ Research rules:
 - Stop when the next probe is unlikely to change the implementation decision.
 - Do not write task-state memory directly.
 
-Output format:
+Common response envelope (return first; repository evidence alone uses `insufficient`, not `pass`):
 STATUS: done | blocked
+TASK_NAME:
+RECEIVED_C:
+RECEIVED_A:
+C_RESULTS:
+- C1 | pass/fail/insufficient | evidence
+A_RESULTS:
+- A1 | checked/violated/not-checked | evidence
+SCOPE_RESULT:
+- actions and files touched, or none
+BLOCKERS:
+PARENT_HANDOFF:
+
+Then include these research details:
 FINDINGS:
 - file:line - concise fact
 SYSTEM_MAP:
