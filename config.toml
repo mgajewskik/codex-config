@@ -20,7 +20,7 @@ Command execution:
 Debugging command handling:
 - Apply the debugging safety model from AGENTS.md before running shell probes.
 - Use concise explanations for trivial read-only probes that Codex runs itself.
-- Use the full AGENTS.md command template for user-run, risky, non-trivial, compound, remote/live-system, or state-changing commands.
+- Use the AGENTS.md command disclosure checklist for user-run, risky, non-trivial, compound, remote/live-system, or state-changing commands.
 - Treat unknown debugging environments as production until the user explicitly says otherwise.
 - Run read-only observational commands without asking when useful, but scope output narrowly and avoid broad secret, credential, raw log, environment, or customer-data dumps.
 - For low-risk reversible or state-changing commands, ask-then-run only when the user explicitly identifies the target as local, dev, or sandbox. For staging, production, customer-facing, or unknown targets, provide a user-run command instead.
