@@ -163,7 +163,7 @@ alternate_screen = "never"
 notifications = true
 notification_condition = "unfocused"
 notification_method = "auto"
-status_line = ["model-with-reasoning", "context-remaining", "current-dir", "git-branch", "five-hour-limit"]
+status_line = ["model-with-reasoning", "context-used", "used-tokens", "weekly-limit", "current-dir", "git-branch", "branch-changes"]
 
 [tui.keymap.global]
 open_external_editor = "ctrl-e"
