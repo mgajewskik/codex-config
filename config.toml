@@ -122,9 +122,12 @@ Codex versioned-docs implementation:
 """
 
 [features]
+apps = false
 memories = true
 multi_agent = false
 hooks = true
+plugins = true
+remote_plugin = true
 
 [features.multi_agent_v2]
 enabled = true
@@ -179,6 +182,14 @@ args = ["-y", "@upstash/context7-mcp"]
 [mcp_servers.codebase_memory_mcp]
 command = "codebase-memory-mcp"
 args = ["--ui=true", "--port=9749"]
+disabled_tools = [
+    "query_graph",
+    "index_repository",
+    "delete_project",
+    "detect_changes",
+    "manage_adr",
+    "ingest_traces",
+]
 
 [mcp_servers.codebase_memory_mcp.tools.list_projects]
 approval_mode = "approve"
