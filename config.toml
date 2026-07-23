@@ -243,3 +243,7 @@ trusted_hash = "sha256:626a2dd791a14cdcb45d6ee61c205d9f7520de5361159ab407229d9da
 
 [hooks.state."/home/mgajewskik/.codex/hooks.json:pre_tool_use:0:3"]
 trusted_hash = "sha256:ea68f7801f36c06613739ce658978d4273cf7de1bdc15ca3bc8cddc8d64b46cc"
+
+[hooks.state."/home/mgajewskik/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:efb9be0cc5ec3053b8e9262d737a46ad6acfb1748e268ab52d53bd51ef72dce3"
+enabled = true
