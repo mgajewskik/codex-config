@@ -50,6 +50,21 @@ The main preferences are:
 - Use reviewer-style scrutiny for significant config, hook, security, policy,
   permission, or multi-file behavior changes.
 
+## Unattended loop
+
+`loop.sh` runs one bounded task at a time in a fresh
+`codex exec --profile loop --ephemeral` process. Give it a task or PRD file
+with explicit acceptance criteria and a completion rule, then run
+`mise run loop -- TASK.md 5` from this repository root. In another normal Git
+checkout, run `bash ~/.codex/loop.sh TASK.md 5` or add the same Mise task there.
+The agent must wait for reviewer PASS before committing and stops when it emits
+`<promise>COMPLETE</promise>`. Use this only in trusted repositories: the loop
+profile permits recursive Git-metadata writes, live network access, and the
+configured documentation/code-search MCP servers. Linked worktrees are
+rejected, and each iteration currently has no timeout. Codex hooks remain
+enabled, including the RTK command wrapper and dangerous-command guardrails,
+but the loop should still be used only on trusted input.
+
 ## What this is
 
 This is a working personal config, not a polished starter template.

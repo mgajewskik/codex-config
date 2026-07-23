@@ -1,0 +1,44 @@
+# Unattended Codex loop profile for codex-cli 0.144.4.
+approval_policy = "never"
+default_permissions = "loop"
+web_search = "live"
+
+[permissions.loop.filesystem]
+":root" = "read"
+
+[permissions.loop.filesystem.":workspace_roots"]
+"." = "write"
+".git" = "write"
+
+[permissions.loop.network]
+enabled = true
+allow_local_binding = true
+
+[permissions.loop.network.domains]
+"*" = "allow"
+
+# Disable unrelated unattended capabilities; intentional MCP exceptions follow.
+[features]
+apps = false
+hooks = true
+memories = false
+multi_agent = false
+plugins = false
+remote_plugin = false
+
+[features.multi_agent_v2]
+enabled = true
+
+[memories]
+generate_memories = false
+use_memories = false
+
+[history]
+persistence = "none"
+
+# Allow fresh documentation lookup and indexed codebase search in loop runs.
+[mcp_servers.codebase_memory_mcp]
+enabled = true
+
+[mcp_servers.context7]
+enabled = true

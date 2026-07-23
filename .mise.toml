@@ -4,3 +4,7 @@ ripgrep = "latest"
 codex = "latest"
 "github:rtk-ai/rtk" = "latest"
 "github:DeusData/codebase-memory-mcp" = { version = "latest", asset_pattern = "codebase-memory-mcp-ui-linux-amd64.tar.gz" }
+
+[tasks.loop]
+description = "Run an unattended Codex loop"
+run = "bash ./loop.sh"
