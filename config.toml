@@ -1,7 +1,7 @@
 # https://developers.openai.com/codex/config-reference
 
-model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
+model = "gpt-6-astra"
+model_reasoning_effort = "high"
 plan_mode_reasoning_effort = "high"
 model_verbosity = "low"
 suppress_unstable_features_warning = true
@@ -66,7 +66,7 @@ V2 delegation and named-agent routing:
 - Use `implementer` for bounded implementation slices after criteria, risks, owned files, allowed edits, and forbidden edits are clear.
 - Use `tester` when validation is unclear, multi-axis, expensive to reason about in the parent context, or useful as an independent check after implementation.
 - Automatically use `reviewer` before final completion for significant code, config, policy, permission, hook, security, public API/schema, or multi-file behavior changes. Do not ask the user first.
-- Let the named-agent TOML own model, reasoning effort, description, role instructions, and any role-specific sandbox override. Pass `agent_type`; do not duplicate model or reasoning values at spawn time.
+- Let shared `[agents]` defaults supply model and reasoning effort unless a named-agent TOML overrides them. Named-agent TOMLs own descriptions, role instructions, and role-specific sandbox overrides. Pass `agent_type`; do not duplicate model or reasoning values at spawn time.
 - Use a unique lowercase underscore `task_name` to identify each delegated task and thread; `task_name` does not select the role.
 
 V2 context transfer:
@@ -121,10 +121,14 @@ Codex versioned-docs implementation:
 - If the version cannot be determined or docs conflict, label the uncertainty and choose the smallest local validation step before coding.
 """
 
+[agents]
+default_subagent_model = "gpt-6-astra"
+default_subagent_reasoning_effort = "high"
+
 [features]
 apps = false
 memories = true
-multi_agent = false
+multi_agent = true
 hooks = true
 plugins = true
 remote_plugin = true
