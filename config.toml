@@ -249,3 +249,10 @@ trusted_hash = "sha256:ea68f7801f36c06613739ce658978d4273cf7de1bdc15ca3bc8cddc8d
 [hooks.state."/home/mgajewskik/.codex/hooks.json:session_start:0:0"]
 trusted_hash = "sha256:efb9be0cc5ec3053b8e9262d737a46ad6acfb1748e268ab52d53bd51ef72dce3"
 enabled = true
+
+[desktop]
+ambient-suggestions-enabled = true
+conversationDetailMode = "STEPS_COMMANDS"
+followUpQueueMode = "queue"
+sansFontSize = 16
+codeFontSize = 14
