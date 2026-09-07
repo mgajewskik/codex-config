@@ -37,16 +37,14 @@ Codex tool routing:
 - Do not use mutating MCP operations such as `index_repository`, `delete_project`, `manage_adr update`, or `ingest_traces` unless the task explicitly requires them.
 
 Primary orchestration:
-- Apply `AGENTS.md` as the reusable behavior contract. Keep Codex-specific tool, shell, and Multi-Agent V2 behavior here.
+- Apply `AGENTS.md` as the reusable behavior contract and authority for when to delegate or require independent review. Role descriptions select whom to use once delegation is warranted; they do not add delegation or review requirements. Keep Codex-specific tool, shell, and Multi-Agent V2 behavior here.
 - The user has explicitly granted standing authorization to use Multi-Agent V2 automatically for context preservation. Treat this as permission to spawn bounded agent threads without asking again when the goal, scope, ownership, safety constraints, and expected output are clear.
 - Keep task framing, success criteria, anti-criteria, scope boundaries, integration, final validation choice, and the user-facing summary in the parent agent.
 - For each delegated root task, normalize testable criteria as `C1`, `C2`, and so on, and meaningful anti-criteria as `A1`, `A2`, and so on. Reset numbering for each root task without changing the user's meaning, thresholds, or prohibitions.
 - Keep one parent-owned C/A ledger. Assign every item to exactly one child lane or retain it for parent verification; preserve the IDs across follow-up tasks, review, and final integration.
 - Send each child only its applicable C/A items. Use `ANTI_CRITERIA: none` when a lane has no meaningful anti-criterion instead of inventing boilerplate.
 - For SIMPLE+ tasks, make an explicit delegation decision after task sizing: identify any separable sidecar lane and decide whether it should run in a V2 agent thread or stay local.
-- Default to bounded V2 agent threads when they can answer a separable question or complete a bounded slice without polluting the parent context. Do not reserve delegation only for review or parallel speedups.
-- Delegate once the goal, scope, constraints, risks, and evidence needs are clear enough for a bounded packet. For MODERATE+ work, use at least one bounded V2 agent thread when there is a separable repo research, external research, validation, implementation, or review lane.
-- If delegation is skipped for MODERATE+ work, say so in the final response as `Agents: skipped` with one of these reasons: `no separable lane`, `immediate blocker`, `too tightly coupled`, `tool unavailable`, or `user declined`.
+- When delegation is warranted under `AGENTS.md`, use bounded V2 threads once the goal, scope, constraints, risks, and evidence needs are clear enough for a packet.
 - Do not ask merely for agent-thread permission when the standing authorization applies. Ask only when the delegated work itself needs clarification, secrets, approval for risky action, or a broader/harder-to-reverse scope than the user requested.
 - Keep work local when the next parent action depends on immediate evidence, the probe is an exact known file/range read or one obvious command, the work cannot be bounded, or delegation overhead clearly exceeds the context saved.
 - Never let multiple writing agents edit the same file concurrently. Parallel implementers are allowed only with disjoint write sets and already-decided shared contracts.
@@ -59,13 +57,13 @@ V2 delegation packet:
 - If a completed child omits an assigned C/A item, send one V2 follow-up task to the same thread naming the missing IDs. If the second result remains incomplete, mark those items unverified and handle or report them directly.
 
 V2 delegation and named-agent routing:
-- Proactively select the closest configured `agent_type` whenever a task has a bounded, separable research, implementation, validation, or review lane.
+- When delegating, select the closest configured `agent_type` for the bounded research, implementation, validation, or review lane.
 - Use `codebase-researcher` for broad repo mapping, unknown conventions, multi-module tracing, or impact-surface discovery across more than one area.
 - Use `web-researcher` for current external facts when freshness matters and the lookup is more than one direct-source check.
 - Use `deep-web-researcher` for broad external research, contested guidance, learning roadmaps, operational research, and comprehensive source-backed dossiers that should persist as markdown.
 - Use `implementer` for bounded implementation slices after criteria, risks, owned files, allowed edits, and forbidden edits are clear.
 - Use `tester` when validation is unclear, multi-axis, expensive to reason about in the parent context, or useful as an independent check after implementation.
-- Automatically use `reviewer` before final completion for significant code, config, policy, permission, hook, security, public API/schema, or multi-file behavior changes. Do not ask the user first.
+- When the `AGENTS.md` PASS-gate requires independent review, automatically use `reviewer` after local validation and before final completion. Do not ask the user first.
 - Let shared `[agents]` defaults supply model and reasoning effort unless a named-agent TOML overrides them. Named-agent TOMLs own descriptions, role instructions, and role-specific sandbox overrides. Pass `agent_type`; do not duplicate model or reasoning values at spawn time.
 - Use a unique lowercase underscore `task_name` to identify each delegated task and thread; `task_name` does not select the role.
 
@@ -100,9 +98,9 @@ Generic V2 fallback:
 
 Review gate:
 - Reviewer scope must cover changed artifacts, direct impact paths, and interactions with existing config, rules, hooks, permissions, schemas, and policies when relevant.
-- For reviewable changes, run the reviewer automatically after implementation and validation, before the final user-facing completion report.
+- Follow the `AGENTS.md` PASS-gate for review requirements, blocker criteria, targeted re-review, and closure.
 - Do not complete with reviewer blockers open; fix and rerun, or explicitly report why a blocker is not actionable.
-- If reviewer is skipped, the final answer must include `Reviewer: skipped` and the reason: TRIVIAL, SIMPLE-only, runtime policy blocked, or user explicitly declined.
+- When independent review is not required, report why under `AGENTS.md`. Required review closes only on `Decision: PASS` or an explicit user waiver.
 
 Completion integration:
 - Before final response, reconcile delegated findings with current local evidence.
