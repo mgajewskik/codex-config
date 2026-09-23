@@ -2,7 +2,7 @@
 
 model = "gpt-6-astra"
 model_reasoning_effort = "medium"
-plan_mode_reasoning_effort = "medium"
+plan_mode_reasoning_effort = "high"
 model_verbosity = "low"
 suppress_unstable_features_warning = true
 approval_policy = "on-request"
@@ -123,6 +123,7 @@ notifications = true
 notification_condition = "unfocused"
 notification_method = "auto"
 status_line = ["model-with-reasoning", "context-used", "used-tokens", "weekly-limit", "current-dir", "git-branch", "branch-changes"]
+screen_reader_detection_done = true
 
 [tui.keymap.global]
 open_external_editor = "ctrl-e"
@@ -133,7 +134,7 @@ move_line_end = "end"
 [tui.model_availability_nux]
 "gpt-5.5" = 4
 "gpt-5.6-sol" = 4
-gpt-6-astra = 3
+gpt-6-astra = 4
 
 [mcp_servers.context7]
 command = "npx"
