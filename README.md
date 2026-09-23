@@ -12,8 +12,8 @@ custom subagents for focused work.
   servers, TUI preferences, and Codex-specific developer instructions.
 - `AGENTS.md` - reusable working rules: stay evidence-oriented, keep diffs
   small, verify claims, and treat risky debugging targets carefully.
-- `agents/` - custom subagent definitions for research, implementation,
-  testing, review, and web/documentation lookup lanes.
+- `agents/` - two model-based workers, `sol` and `luna`, and a dedicated
+  read-only `reviewer`.
 - `hooks.json` and `hooks/` - global Bash hooks for logging command attempts,
   blocking dangerous command patterns, protecting sensitive paths, and enforcing
   the `rtk` shell-command prefix.
@@ -29,8 +29,38 @@ The config is split into a few layers:
 - Codex-specific orchestration lives in `config.toml` under
   `developer_instructions`.
 - Safety-sensitive command handling lives in `hooks/`, not just in prose rules.
-- Subagents live in `agents/` and are meant to keep large research, testing, and
-  review tasks out of the main context when that helps.
+- The main conversation defaults to GPT-6 Astra medium for approach, decisions,
+  and integration; another main model can be selected for the session. Subagents
+  keep substantive research and execution out of its context.
+
+| Profile | Model and effort | Use |
+| --- | --- | --- |
+| `luna` | GPT-6 Luna high | Bounded research, mechanical edits, focused checks |
+| `sol` | GPT-6 Sol high | Substantial implementation, diagnosis, research, testing |
+| `reviewer` | Active main model, high effort | Independent Spec and Standards review |
+
+Workers receive a task-specific role in a focused, free-form brief. They inherit
+the parent's permissions; research-only briefs prohibit edits but are not a
+separate sandbox. Sol and Luna keep their pinned models when the main model
+changes. The reviewer inherits the main model: an Astra main gets an Astra
+reviewer, and a Sol main gets a Sol reviewer, both at high effort. There is no
+global subagent model override; unnamed subagents also inherit, so ordinary work
+uses the named worker profiles. The reviewer has a read-only profile, and its effective
+permissions must be checked before relying on that boundary. Codex can override
+that profile with the parent's live permissions. When it does, run the dedicated
+reviewer from a fresh `codex --sandbox read-only --model <active-main-model>`
+session and collect its decision. Carry over the original session's active model.
+
+Major or high-risk changes automatically receive one fresh review after local
+validation, covering task-scoped uncommitted and new files as well as committed
+changes. Completion requires `Decision: PASS` or an explicit user waiver. This
+review does not invoke the separate `review` skill, which remains available for
+explicit fixed-point branch/PR reviews. Ordinary small changes do not gain an
+extra review requirement merely because workers exist.
+
+Start a fresh Codex session after changing these profiles. Model routing and
+smaller briefs aim to reduce Astra usage and preserve context; total token,
+credit, and elapsed-time savings depend on the task and have not been measured.
 
 The setup also wires in MCP servers I use often:
 
@@ -47,8 +77,8 @@ The main preferences are:
 - Use the smallest tool or command that answers the question.
 - Prefix shell commands with `rtk`.
 - Treat unknown debugging targets as production unless stated otherwise.
-- Use reviewer-style scrutiny for significant config, hook, security, policy,
-  permission, or multi-file behavior changes.
+- Require independent review for major or high-risk changes under the
+  `AGENTS.md` PASS-gate, including safety and permission changes.
 
 ## Unattended loop
 

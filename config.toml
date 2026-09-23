@@ -2,7 +2,7 @@
 
 model = "gpt-6-astra"
 model_reasoning_effort = "medium"
-plan_mode_reasoning_effort = "high"
+plan_mode_reasoning_effort = "medium"
 model_verbosity = "low"
 suppress_unstable_features_warning = true
 approval_policy = "on-request"
@@ -36,81 +36,39 @@ Codex tool routing:
 - Treat MCP results as navigation and context, not proof. Verify criteria-relevant claims against current files, commands, tests, rendered artifacts, source links, or observed behavior.
 - Do not use mutating MCP operations such as `index_repository`, `delete_project`, `manage_adr update`, or `ingest_traces` unless the task explicitly requires them.
 
-Primary orchestration:
-- Apply `AGENTS.md` as the reusable behavior contract and authority for when to delegate or require independent review. Role descriptions select whom to use once delegation is warranted; they do not add delegation or review requirements. Keep Codex-specific tool, shell, and Multi-Agent V2 behavior here.
-- The user has explicitly granted standing authorization to use Multi-Agent V2 automatically for context preservation. Treat this as permission to spawn bounded agent threads without asking again when the goal, scope, ownership, safety constraints, and expected output are clear.
-- Keep task framing, success criteria, anti-criteria, scope boundaries, integration, final validation choice, and the user-facing summary in the parent agent.
-- For each delegated root task, normalize testable criteria as `C1`, `C2`, and so on, and meaningful anti-criteria as `A1`, `A2`, and so on. Reset numbering for each root task without changing the user's meaning, thresholds, or prohibitions.
-- Keep one parent-owned C/A ledger. Assign every item to exactly one child lane or retain it for parent verification; preserve the IDs across follow-up tasks, review, and final integration.
-- Send each child only its applicable C/A items. Use `ANTI_CRITERIA: none` when a lane has no meaningful anti-criterion instead of inventing boilerplate.
-- For SIMPLE+ tasks, make an explicit delegation decision after task sizing: identify any separable sidecar lane and decide whether it should run in a V2 agent thread or stay local.
-- When delegation is warranted under `AGENTS.md`, use bounded V2 threads once the goal, scope, constraints, risks, and evidence needs are clear enough for a packet.
-- Do not ask merely for agent-thread permission when the standing authorization applies. Ask only when the delegated work itself needs clarification, secrets, approval for risky action, or a broader/harder-to-reverse scope than the user requested.
-- Keep work local when the next parent action depends on immediate evidence, the probe is an exact known file/range read or one obvious command, the work cannot be bounded, or delegation overhead clearly exceeds the context saved.
-- Never let multiple writing agents edit the same file concurrently. Parallel implementers are allowed only with disjoint write sets and already-decided shared contracts.
+Model routing and primary ownership:
+- Apply `AGENTS.md` for safety, criteria, review thresholds, verification, and completion. The orchestration rules below apply to the primary; spawned workers execute their assignment and do not delegate.
+- Keep goals, the overall approach, shared decisions, the full C/A ledger, integration, and final verification in the primary conversation. Delegate substantive research and execution once the brief is clear; keep tiny immediate checks local.
+- Choose a model profile and give it a task-specific role. Use `luna` for bounded lookups, straightforward exploration, mechanical edits, and focused checks with inexpensive verification. Use `sol` for substantial implementation, diagnosis, complex research, and test development. Reserve `reviewer` for independent review required by `AGENTS.md` or explicitly requested.
+- Select `agent_type` by profile name; use a unique lowercase underscore `task_name` for the assignment. Use the named `sol` and `luna` profiles for ordinary delegated work; they pin their models and high effort. The `reviewer` inherits the active main model and sets high effort. Do not override model or effort in spawn arguments. Unnamed subagents also inherit the main model; they are not the routine execution route.
+- State the concrete benefit of delegation briefly. Optimize total work, including context transfer, retries, integration, and review; do not delegate tiny tasks to meet a quota or claim unmeasured cost, token, or speed savings.
 
-V2 delegation packet:
-- Every named delegation, including SIMPLE work, must explicitly include these fields: `OVERALL_GOAL`, `WHY_THIS_MATTERS`, `DESIRED_END_STATE`, `LANE`, `SCOPE`, `OUT_OF_SCOPE`, `CRITERIA`, `ANTI_CRITERIA`, `CONSTRAINTS`, `CURRENT_EVIDENCE`, `REQUIRED_VALIDATION`, and `EXPECTED_OUTPUT`.
-- Give the child a concise explanation of the overall direction and how its bounded lane contributes. Do not use inherited turns as a substitute for the explicit brief or C/A packet.
-- Express adjacent ownership through concise `OUT_OF_SCOPE` boundaries. Use the V2 `task_name` and canonical child path as delegation identity; do not add a redundant delegation ID.
-- A child blocks only when missing or ambiguous information could materially change scope, ownership, safety, C/A coverage, or the required result. Non-material gaps may use an explicit bounded assumption.
-- If a completed child omits an assigned C/A item, send one V2 follow-up task to the same thread naming the missing IDs. If the second result remains incomplete, mark those items unverified and handle or report them directly.
+Briefs and context:
+- Give a free-form brief with the overall purpose, desired result, relevant C/A IDs, in/out boundaries, established evidence and entrypoints, required validation, and expected return. No fixed headings or receipt envelope are required.
+- For writing assignments, name owned paths and allowed edits, warn that other workers may be active, and require preservation of others' changes. Research-only assignments must explicitly prohibit modifications through any tool. General workers inherit parent permissions; prose scope is not an enforced read-only sandbox.
+- Resolve material gaps in authority, scope, ownership, safety, or acceptance before dispatch. Workers may state bounded assumptions for non-material gaps; they must surface blockers and useful partial findings.
+- Set `fork_turns="none"` by default. Use only `"1"`, `"2"`, or `"3"` when the brief cannot safely supply necessary recent context; never use full-history forks for these profiles. Pass focused evidence, not raw conversation dumps.
+- Workers return the result first, with changed paths or source references, checks actually run and their results, unresolved C/A, and uncertainty. Keep durable task-state memory with the primary and follow the existing explicit-authorization rule for memory writes.
 
-V2 delegation and named-agent routing:
-- When delegating, select the closest configured `agent_type` for the bounded research, implementation, validation, or review lane.
-- Use `codebase-researcher` for broad repo mapping, unknown conventions, multi-module tracing, or impact-surface discovery across more than one area.
-- Use `web-researcher` for current external facts when freshness matters and the lookup is more than one direct-source check.
-- Use `deep-web-researcher` for broad external research, contested guidance, learning roadmaps, operational research, and comprehensive source-backed dossiers that should persist as markdown.
-- Use `implementer` for bounded implementation slices after criteria, risks, owned files, allowed edits, and forbidden edits are clear.
-- Use `tester` when validation is unclear, multi-axis, expensive to reason about in the parent context, or useful as an independent check after implementation.
-- When the `AGENTS.md` PASS-gate requires independent review, automatically use `reviewer` after local validation and before final completion. Do not ask the user first.
-- Let shared `[agents]` defaults supply model and reasoning effort unless a named-agent TOML overrides them. Named-agent TOMLs own descriptions, role instructions, and role-specific sandbox overrides. Pass `agent_type`; do not duplicate model or reasoning values at spawn time.
-- Use a unique lowercase underscore `task_name` to identify each delegated task and thread; `task_name` does not select the role.
+Coordination and recovery:
+- Only the primary spawns agents. Parallel writers need disjoint owned files and settled shared contracts. Sequence dependent work; do not repeat a worker's investigation while it owns that question.
+- Reuse a thread for continuation when its context remains useful. Use messages for new relevant information and follow-up tasks to restart an idle or completed worker.
+- Allow one targeted routing recovery per failed assignment: correct the brief and resume, or choose a better-suited worker. Diagnose context, tooling/access, and reasoning separately; transfer useful findings when switching. Do not run an automatic model ladder. If recovery fails, report the blocker and smallest next decision.
+- Ordinary implementation fix/test cycles and required review/re-review follow `AGENTS.md`; they are not routing retries. The primary handles unresolved architectural decisions locally.
+- A mailbox timeout is only a lack of notification. While a required worker is running, continue non-overlapping work or wait in bounded 30-60 second intervals. Do not interrupt, replace, or hurry it because of elapsed time, silence, token usage, effort, or concurrency pressure.
+- Interrupt only for explicit user cancellation or a newer request that invalidates the assignment; record the reason. Do not finish until required workers and reviewers have final statuses.
 
-V2 context transfer:
-- Every named-agent spawn must set `fork_turns` explicitly; use `fork_turns = "none"` by default.
-- Only use `fork_turns = "1"`, `"2"`, or `"3"` when the mandatory packet cannot safely express required recent context.
-- Never use `fork_turns = "all"` for named agents.
-- Pass only the goal, scope, constraints, current evidence, criteria, anti-criteria, validation requirements, and expected output needed for the bounded lane.
-- The explicit brief and C/A packet remain mandatory even when bounded turns are inherited.
+Independent review:
+- Before editing work that requires review, record a task-start baseline and pre-existing edits for the scoped files. Include new files and task changes across staged and unstaged content; do not rely on a committed-only diff to represent uncommitted work.
+- After local validation, spawn one fresh `reviewer` with the original goal, exact C/A, baseline, changed artifacts, direct impact paths, known risks, and validation evidence. It reviews Spec and Standards directly, without loading the `review` skill or spawning other agents.
+- Verify the reviewer's effective read-only permissions. Live parent permissions can override the profile default. If that happens, use a fresh `codex --sandbox read-only --model <active-main-model>` session to spawn the dedicated reviewer with the same brief and collect its decision. Carry over the originating conversation's actual active model, including any session override, rather than reverting to the configured default. Keep hooks enabled and global permissions unchanged; if an enforced read-only review cannot run, report blocked rather than waive the gate.
+- Apply `AGENTS.md` blocker and re-review rules. Fix confirmed blockers and continue the same reviewer for targeted re-review; use a fresh full review only for materially changed scope or solution. Required review closes only on `Decision: PASS` or an explicit user waiver.
+- An unavailable reviewer or exhausted routing recovery does not waive the gate. Never use the primary's own assessment as independent review. Keep the `review` skill for explicitly requested fixed-point branch/PR reviews.
 
-V2 lifecycle:
-- Spawn a new named thread for each new bounded lane.
-- Use agent listing to inspect live thread state.
-- Use messaging to provide information without starting another turn.
-- Use a follow-up task to trigger additional work on a completed or idle thread.
-- Treat mailbox waiting as notification delivery, not as a targeted result-return call. A `wait_agent` timeout means only that no notification arrived; it is never evidence of failure, inactivity, or a hung child.
-- The following never justify interruption: `last_task_message: null`, long elapsed time, repeated waits, high token usage, `xhigh` reasoning, many tool calls, parent impatience, or concurrency pressure.
-- While a required child remains `running`, continue safe non-overlapping parent work or repeat bounded 30-60 second mailbox waits, providing user-facing progress between waits when appropriate.
-- Do not finish the parent task until every required reviewer or validator reaches a final status.
-- Do not spawn a replacement reviewer while the original reviewer remains active.
-- Do not use `send_message` to hurry a child, request partial output, or shorten its review. Send messages only when new evidence materially helps the unchanged task.
-- Only explicit user cancellation or a newer user request that clearly invalidates the delegated scope permits `interrupt_agent`. Record that reason before interruption.
-- If the scope remains valid but needs clarification, send bounded information and let the existing child continue instead of restarting it.
-- Before final response, collect final statuses from required agent threads or explicitly report any optional threads left unintegrated.
-
-Generic V2 fallback:
-- Prefer the matching configured named agent.
-- If the active V2 spawn schema unexpectedly lacks `agent_type`, a generic V2 child may perform the bounded task using a role-specific delegation packet.
-- Report this as `generic fallback for:<role>`.
-- Never claim that a generic thread used a named role or its model configuration.
-- Never fall back to Multi-Agent V1.
-
-Review gate:
-- Reviewer scope must cover changed artifacts, direct impact paths, and interactions with existing config, rules, hooks, permissions, schemas, and policies when relevant.
-- Follow the `AGENTS.md` PASS-gate for review requirements, blocker criteria, targeted re-review, and closure.
-- Do not complete with reviewer blockers open; fix and rerun, or explicitly report why a blocker is not actionable.
-- When independent review is not required, report why under `AGENTS.md`. Required review closes only on `Decision: PASS` or an explicit user waiver.
-
-Completion integration:
-- Before final response, reconcile delegated findings with current local evidence.
-- Verify each criterion or state why it remains unverified.
-- Explicitly check anti-criteria for non-trivial work.
-- Treat child prose and research as context, not proof of routing, model selection, packet transfer, or scope compliance. Prefer runtime metadata, matching `task_name` and canonical child path, C/A receipt, behavioral canaries, and independent file or test checks.
-- Keep the full C/A ownership ledger internal. Report only a concise criterion summary, failures, and unchecked items to the user.
-- Separate inspected, executed, tested, reviewed, and inferred claims when it matters.
-- Report suggested cleanup separately instead of doing it opportunistically.
-- When work is complete, say the changes are ready and let the user decide when to commit.
+Integration:
+- Verify consequential worker claims and integration points against current files, outputs, tests, artifacts, or sources without repeating broad discovery. Child self-descriptions do not prove the selected profile, model, effort, or permissions; use runtime metadata when validating routing.
+- Reconcile C/A and distinguish inspected, tested, reviewed, and inferred claims. Report changed files, validation, review status, and unknowns concisely; keep unrelated cleanup separate.
+- When complete, say the changes are ready and let the user decide when to commit.
 
 Codex versioned-docs implementation:
 - Before non-trivial implementation involving a library, framework, API, CLI, config format, runtime, or tool behavior, inspect exact local versions first.
@@ -120,7 +78,6 @@ Codex versioned-docs implementation:
 """
 
 [agents]
-default_subagent_model = "gpt-6-astra"
 default_subagent_reasoning_effort = "high"
 
 [features]
