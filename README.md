@@ -13,7 +13,7 @@ custom subagents for focused work.
 - `AGENTS.md` - reusable working rules: stay evidence-oriented, keep diffs
   small, verify claims, and treat risky debugging targets carefully.
 - `agents/` - two model-based workers, `sol` and `luna`, and a dedicated
-  read-only `reviewer`.
+  review-only `reviewer`.
 - `hooks.json` and `hooks/` - global Bash hooks for logging command attempts,
   blocking dangerous command patterns, protecting sensitive paths, and enforcing
   the `rtk` shell-command prefix.
@@ -45,11 +45,10 @@ separate sandbox. Sol and Luna keep their pinned models when the main model
 changes. The reviewer inherits the main model: an Astra main gets an Astra
 reviewer, and a Sol main gets a Sol reviewer, both at high effort. There is no
 global subagent model override; unnamed subagents also inherit, so ordinary work
-uses the named worker profiles. The reviewer has a read-only profile, and its effective
-permissions must be checked before relying on that boundary. Codex can override
-that profile with the parent's live permissions. When it does, run the dedicated
-reviewer from a fresh `codex --sandbox read-only --model <active-main-model>`
-session and collect its decision. Carry over the original session's active model.
+uses the named worker profiles. The reviewer runs through the normal subagent tool
+with inherited parent permissions. Its assignment prohibits changes even when
+those permissions allow writes. Launching it requires no separate read-only
+session or additional user approval; existing tool approval rules still apply.
 
 Major or high-risk changes automatically receive one fresh review after local
 validation, covering task-scoped uncommitted and new files as well as committed
