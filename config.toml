@@ -1,8 +1,8 @@
 # https://developers.openai.com/codex/config-reference
 
-model = "gpt-6-astra"
-model_reasoning_effort = "medium"
-plan_mode_reasoning_effort = "high"
+model = "gpt-6.1-sol"
+model_reasoning_effort = "high"
+plan_mode_reasoning_effort = "xhigh"
 model_verbosity = "low"
 suppress_unstable_features_warning = true
 approval_policy = "on-request"
@@ -39,15 +39,15 @@ Codex tool routing:
 Model routing and primary ownership:
 - Apply `AGENTS.md` for safety, criteria, review thresholds, verification, and completion. The orchestration rules below apply to the primary; spawned workers execute their assignment and do not delegate.
 - Keep goals, the overall approach, shared decisions, the full C/A ledger, integration, and final verification in the primary conversation. Delegate substantive research and execution once the brief is clear; keep tiny immediate checks local.
-- Choose a model profile and give it a task-specific role. Use `luna` for bounded lookups, straightforward exploration, mechanical edits, and focused checks with inexpensive verification. Use `sol` for substantial implementation, diagnosis, complex research, and test development. Reserve `reviewer` for independent review required by `AGENTS.md` or explicitly requested.
-- Select `agent_type` by profile name; use a unique lowercase underscore `task_name` for the assignment. Use the named `sol` and `luna` profiles for ordinary delegated work; they pin their models and high effort. The `reviewer` inherits the active main model and sets high effort. Do not override model or effort in spawn arguments. Unnamed subagents also inherit the main model; they are not the routine execution route.
+- Use the built-in `default` agent for ordinary delegated work. Give it a task-specific role, scope, and checks in its brief. Reserve `reviewer` for independent review required by `AGENTS.md` or explicitly requested.
+- Select `agent_type="default"` for ordinary work or `agent_type="reviewer"` for independent review; use a unique lowercase underscore `task_name` for the assignment. Use GPT-6.1 Sol exclusively: ordinary work uses high effort; Plan mode and `reviewer` use xhigh effort. Global subagent defaults select GPT-6.1 Sol high; the reviewer profile pins GPT-6.1 Sol xhigh. Do not override model or effort in spawn arguments. Ordinary subagents inherit the parent's other session settings and permissions without a custom worker file.
 - State the concrete benefit of delegation briefly. Optimize total work, including context transfer, retries, integration, and review; do not delegate tiny tasks to meet a quota or claim unmeasured cost, token, or speed savings.
 
 Briefs and context:
 - Give a free-form brief with the overall purpose, desired result, relevant C/A IDs, in/out boundaries, established evidence and entrypoints, required validation, and expected return. No fixed headings or receipt envelope are required.
 - For writing assignments, name owned paths and allowed edits, warn that other workers may be active, and require preservation of others' changes. Research-only assignments must explicitly prohibit modifications through any tool. General workers inherit parent permissions; prose scope is not an enforced read-only sandbox.
 - Resolve material gaps in authority, scope, ownership, safety, or acceptance before dispatch. Workers may state bounded assumptions for non-material gaps; they must surface blockers and useful partial findings.
-- Set `fork_turns="none"` by default. Use only `"1"`, `"2"`, or `"3"` when the brief cannot safely supply necessary recent context; never use full-history forks for these profiles. Pass focused evidence, not raw conversation dumps.
+- Set `fork_turns="none"` by default. Use only `"1"`, `"2"`, or `"3"` when the brief cannot safely supply necessary recent context; never use full-history forks for workers or reviewers. Pass focused evidence, not raw conversation dumps.
 - Workers return the result first, with changed paths or source references, checks actually run and their results, unresolved C/A, and uncertainty. Keep durable task-state memory with the primary and follow the existing explicit-authorization rule for memory writes.
 
 Coordination and recovery:
@@ -78,6 +78,7 @@ Codex versioned-docs implementation:
 """
 
 [agents]
+default_subagent_model = "gpt-6.1-sol"
 default_subagent_reasoning_effort = "high"
 
 [features]
