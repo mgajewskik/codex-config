@@ -84,13 +84,30 @@ The main preferences are:
 with explicit acceptance criteria and a completion rule, then run
 `mise run loop -- TASK.md 5` from this repository root. In another normal Git
 checkout, run `bash ~/.codex/loop.sh TASK.md 5` or add the same Mise task there.
-The agent must wait for reviewer PASS before committing and stops when it emits
-`<promise>COMPLETE</promise>`. Use this only in trusted repositories: the loop
-profile permits recursive Git-metadata writes, live network access, and the
-configured documentation/code-search MCP servers. Linked worktrees are
-rejected, and each iteration currently has no timeout. Codex hooks remain
-enabled, including the RTK command wrapper and dangerous-command guardrails,
-but the loop should still be used only on trusted input.
+The agent must wait for reviewer PASS before committing. A successful run ending
+with `<promise>COMPLETE</promise>` stops the loop; a failed run cannot signal
+completion. `<promise>BLOCKED</promise>` stops with exit status 2, and three
+consecutive iterations without a new commit stop with status 3.
+
+Each iteration has a 30-minute budget, including retries. An optional third
+argument sets the budget in seconds, for example `mise run loop -- TASK.md 5
+3600`. GNU `timeout` is required; an expired run exits 124, with forced
+termination after a further 30-second grace period potentially returning 137.
+Explicit transient service/transport errors receive at most two retries,
+60 seconds apart, within the same budget. Permanent or unrecognized failures
+stop immediately. The last Codex error diagnostic determines retry eligibility.
+
+Use this only in trusted repositories. The profile retains normal workspace
+protections, system temp writes, and the main config's cache/tooling roots.
+The script explicitly grants Git-metadata writes only to the validated checkout;
+other roots' Git metadata stays protected. The tooling roots are listed in
+`loop.config.toml` and must be kept aligned with `config.toml`. Approvals remain
+`never`, live network access and documentation/code-search MCP servers stay
+enabled, and memories/plugins remain disabled for unattended runs. Linked
+worktrees are rejected. Codex hooks remain enabled, including the RTK wrapper
+and dangerous-command guardrails.
+
+Run the controller checks with `rtk proxy python3 tests/test_loop.py`.
 
 ## What this is
 

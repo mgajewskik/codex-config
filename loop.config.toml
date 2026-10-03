@@ -1,14 +1,28 @@
-# Unattended Codex loop profile for codex-cli 0.144.4.
+# Unattended Codex loop profile, validated with codex-cli 0.160.0.
 approval_policy = "never"
 default_permissions = "loop"
 web_search = "live"
 
-[permissions.loop.filesystem]
-":root" = "read"
+[permissions.loop]
+extends = ":workspace"
+
+# Match the main config's tooling roots while retaining workspace protections.
+# loop.sh separately grants Git writes only to its validated checkout.
+[permissions.loop.workspace_roots]
+"~/.cache" = true
+"~/.codex/skills" = true
+"~/.agents/skills" = true
+"~/.codex/memories" = true
+"~/.ansible" = true
+"~/.local/state/mise" = true
+"~/.local/share/uv" = true
+"~/go/pkg" = true
 
 [permissions.loop.filesystem.":workspace_roots"]
-"." = "write"
-".git" = "write"
+".git" = "read"
+".codex" = "read"
+".agents" = "read"
+".aws" = "read"
 
 [permissions.loop.network]
 enabled = true
