@@ -23,12 +23,11 @@ Debugging command handling:
 - Use the AGENTS.md command disclosure checklist for user-run, risky, non-trivial, compound, remote/live-system, or state-changing commands.
 - Treat unknown debugging environments as production until the user explicitly says otherwise.
 - Run read-only observational commands without asking when useful, but scope output narrowly and avoid broad secret, credential, raw log, environment, or customer-data dumps.
-- For low-risk reversible or state-changing commands, ask-then-run only when the user explicitly identifies the target as local, dev, or sandbox. For staging, production, customer-facing, or unknown targets, provide a user-run command instead.
-- Never run irreversible/high-impact/destructive commands. Provide safer probes first, then manual guidance with impact, alternatives, rollback limits, and verification.
+- Apply AGENTS.md action classification, reversibility evidence, journaling, production grants, and user-executed irreversible-action rules to debugging commands.
 
 Codex tool routing:
-- Prefer dedicated file tools for local file operations: read exact paths, glob for filenames, grep for raw text/regex, and apply patches for edits.
-- Use Bash for execution, validation, git, package scripts, and process-level diagnostics; do not use Bash as a substitute for file read/write/search tools when a dedicated tool is available.
+- Prefer dedicated file tools for local reads, writes, and edits, including apply patches.
+- Use Bash for search, listing, execution, validation, git, package scripts, and process-level diagnostics; do not use Bash as a substitute for file reads, writes, or edits when a dedicated tool is available.
 - Prefer `codebase_memory_mcp` for broad code discovery in indexed repos: architecture orientation, symbol or qualified-name discovery, graph-enriched code search, call/data-flow tracing, and snippet retrieval with structural metadata.
 - Prefer raw text search for docs, config, prose, regex-heavy audits, unindexed repos, or when current filesystem state is the source of truth.
 - When the active index is uncertain, start with `list_projects` or `index_status` and pass an explicit `project`.
@@ -38,7 +37,7 @@ Codex tool routing:
 
 Model routing and primary ownership:
 - Apply `AGENTS.md` for safety, criteria, review thresholds, verification, and completion. The orchestration rules below apply to the primary; spawned workers execute their assignment and do not delegate.
-- Keep goals, the overall approach, shared decisions, the full C/A ledger, integration, and final verification in the primary conversation. Delegate substantive research and execution once the brief is clear; keep tiny immediate checks local.
+- Keep goals, the overall approach, shared decisions, the full C/A ledger, integration, and final verification in the primary conversation. Apply AGENTS.md Subagents rules to delegation scope.
 - Use the built-in `default` agent for ordinary delegated work. Give it a task-specific role, scope, and checks in its brief. Reserve `reviewer` for independent review required by `AGENTS.md` or explicitly requested.
 - Select `agent_type="default"` for ordinary work or `agent_type="reviewer"` for independent review; use a unique lowercase underscore `task_name` for the assignment. Use GPT-6.1 Sol exclusively: ordinary work uses high effort; Plan mode and `reviewer` use xhigh effort. Global subagent defaults select GPT-6.1 Sol high; the reviewer profile pins GPT-6.1 Sol xhigh. Do not override model or effort in spawn arguments. Ordinary subagents inherit the parent's other session settings and permissions without a custom worker file.
 - State the concrete benefit of delegation briefly. Optimize total work, including context transfer, retries, integration, and review; do not delegate tiny tasks to meet a quota or claim unmeasured cost, token, or speed savings.
@@ -68,7 +67,7 @@ Independent review:
 Integration:
 - Verify consequential worker claims and integration points against current files, outputs, tests, artifacts, or sources without repeating broad discovery. Child self-descriptions do not prove the selected profile, model, effort, or permissions; use runtime metadata when validating routing.
 - Reconcile C/A and distinguish inspected, tested, reviewed, and inferred claims. Report changed files, validation, review status, and unknowns concisely; keep unrelated cleanup separate.
-- When complete, say the changes are ready and let the user decide when to commit.
+- Follow AGENTS.md for Git authority and completion reporting; honor task-specific instructions about committing.
 
 Codex versioned-docs implementation:
 - Before non-trivial implementation involving a library, framework, API, CLI, config format, runtime, or tool behavior, inspect exact local versions first.

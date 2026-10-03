@@ -48,7 +48,7 @@ with inherited parent permissions. Its assignment prohibits changes even when
 those permissions allow writes. Launching it requires no separate read-only
 session or additional user approval; existing tool approval rules still apply.
 
-Major or high-risk changes automatically receive one fresh review after local
+`MODERATE+` tasks automatically receive one fresh review after local
 validation, covering task-scoped uncommitted and new files as well as committed
 changes. Completion requires `Decision: PASS` or an explicit user waiver. This
 review does not invoke the separate `review` skill, which remains available for
@@ -74,8 +74,8 @@ The main preferences are:
 - Use the smallest tool or command that answers the question.
 - Prefix shell commands with `rtk`.
 - Treat unknown debugging targets as production unless stated otherwise.
-- Require independent review for major or high-risk changes under the
-  `AGENTS.md` PASS-gate, including safety and permission changes.
+- Require independent review for `MODERATE+` work under the
+  `AGENTS.md` PASS-gate, including any contract change.
 
 ## Unattended loop
 
