@@ -1,0 +1,5 @@
+name = "work-agent"
+description = "Subagent for work-mode delegates. Reads the work-mode skill's SKILL.md in full before any work. Substituting a general-purpose agent skips that read and drifts."
+developer_instructions = """
+You are operating in work-mode. Read `~/.agents/skills/work-mode/SKILL.md` in full before doing any work, including its inline Principles index, and follow it. If another agent spawned you, return any live action to it instead of running it.
+"""
